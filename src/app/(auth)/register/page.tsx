@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createClient } from "@/lib/supabase/client";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { registerSchema } from "@/lib/validation/auth";
 
 export default function RegisterPage() {
@@ -18,6 +18,7 @@ export default function RegisterPage() {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const isConfigured = isSupabaseConfigured();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +40,14 @@ export default function RegisterPage() {
 
     setLoading(true);
 
+    // If Supabase credentials are not configured in .env.local, seamless local preview
+    if (!isConfigured) {
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 500);
+      return;
+    }
+
     try {
       const supabase = createClient();
       const { error: signUpError } = await supabase.auth.signUp({
@@ -53,20 +62,14 @@ export default function RegisterPage() {
       });
 
       if (signUpError) {
-        if (
-          process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("placeholder") ||
-          signUpError.message.includes("fetch failed")
-        ) {
-          router.push("/dashboard");
-          return;
-        }
         setError(signUpError.message);
         return;
       }
 
       router.push("/dashboard");
-    } catch {
-      router.push("/dashboard");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erreur de connexion";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -82,6 +85,15 @@ export default function RegisterPage() {
           14 jours d&apos;essai gratuit — Sans engagement
         </p>
       </div>
+
+      {!isConfigured && (
+        <div className="mb-4 rounded-lg bg-amber-50 p-3 text-xs text-amber-800 border border-amber-200">
+          <p className="font-semibold">Mode Démonstration Local</p>
+          <p className="mt-0.5 text-[11px] text-amber-700">
+            Supabase n&apos;est pas encore lié dans <code>.env.local</code>. Le formulaire vous permet d&apos;accéder directement au tableau de bord pour tester l&apos;interface.
+          </p>
+        </div>
+      )}
 
       {error && (
         <div className="mb-4 rounded-lg bg-red-50 p-3 text-xs text-red-700 border border-red-200">
