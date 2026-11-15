@@ -1,24 +1,31 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const isConfigured = isSupabaseConfigured();
+
+  const isConfirmedParam = searchParams.get("confirmed");
+  const authErrorParam = searchParams.get("error");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setNeedsConfirmation(false);
     setLoading(true);
 
     if (!isConfigured) {
@@ -36,7 +43,17 @@ export default function LoginPage() {
       });
 
       if (signInError) {
-        setError(signInError.message || "Identifiants invalides");
+        if (
+          signInError.message.toLowerCase().includes("email not confirmed") ||
+          signInError.message.toLowerCase().includes("non confirmé")
+        ) {
+          setNeedsConfirmation(true);
+          setError(
+            "Votre compte n'est pas encore activé. Veuillez cliquer sur le lien de validation reçu par email."
+          );
+        } else {
+          setError(signInError.message || "Identifiants invalides");
+        }
         return;
       }
 
@@ -46,6 +63,32 @@ export default function LoginPage() {
       setError(msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      setError("Veuillez renseigner votre email ci-dessous pour renvoyer la confirmation");
+      return;
+    }
+
+    try {
+      const supabase = createClient();
+      const callbackUrl = typeof window !== "undefined"
+        ? `${window.location.origin}/auth/callback`
+        : undefined;
+
+      await supabase.auth.resend({
+        type: "signup",
+        email,
+        options: {
+          emailRedirectTo: callbackUrl,
+        },
+      });
+      setResendSuccess(true);
+      setError(null);
+    } catch {
+      setError("Impossible de renvoyer l'email pour le moment");
     }
   };
 
@@ -69,9 +112,36 @@ export default function LoginPage() {
         </div>
       )}
 
+      {isConfirmedParam && (
+        <div className="mb-4 rounded-lg bg-emerald-50 p-3 text-xs text-emerald-800 border border-emerald-200">
+          Votre adresse email a été confirmée avec succès ! Vous pouvez maintenant vous connecter.
+        </div>
+      )}
+
+      {authErrorParam === "confirmation_failed" && (
+        <div className="mb-4 rounded-lg bg-red-50 p-3 text-xs text-red-700 border border-red-200">
+          Le lien de validation d&apos;email a expiré ou est invalide. Veuillez demander un nouvel email ci-dessous.
+        </div>
+      )}
+
+      {resendSuccess && (
+        <div className="mb-4 rounded-lg bg-emerald-50 p-3 text-xs text-emerald-800 border border-emerald-200">
+          Un nouvel email de validation vient d&apos;être envoyé. Vérifiez votre boîte de réception.
+        </div>
+      )}
+
       {error && (
         <div className="mb-4 rounded-lg bg-red-50 p-3 text-xs text-red-700 border border-red-200">
-          {error}
+          <p>{error}</p>
+          {needsConfirmation && (
+            <button
+              type="button"
+              onClick={handleResendConfirmation}
+              className="mt-2 text-xs font-semibold text-brand-700 underline block hover:text-brand-800"
+            >
+              Renvoyer l&apos;email de validation
+            </button>
+          )}
         </div>
       )}
 
@@ -126,3 +196,12 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="p-4 text-center text-xs text-slate-400">Chargement...</div>}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
