@@ -8,6 +8,20 @@ import { Badge } from "@/components/ui/badge";
 
 export default function SettingsPage() {
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [selectedSector, setSelectedSector] = useState("general");
+
+  const sectorsList = [
+    { code: "general", name: "Commerce ou service de proximité (Général)" },
+    { code: "restaurants", name: "Restaurants & Restauration rapide" },
+    { code: "cafes_bars", name: "Cafés & Bars" },
+    { code: "boulangeries", name: "Boulangeries & Pâtisseries" },
+    { code: "coiffeurs_barbiers", name: "Coiffeurs & Barbiers" },
+    { code: "instituts_beaute", name: "Instituts de Beauté & Spas" },
+    { code: "salles_sport", name: "Salles de Sport & Studios" },
+    { code: "boutiques_mode", name: "Boutiques de Mode & Accessoires" },
+    { code: "commerces_alimentaires", name: "Commerces Alimentaires & Épiceries" },
+    { code: "fleuristes", name: "Fleuristes de proximité" },
+  ];
   const [modules, setModules] = useState([
     {
       id: "content",
@@ -120,21 +134,29 @@ export default function SettingsPage() {
       {/* Sector Profile Header */}
       <Card className="border-slate-200">
         <CardHeader className="p-6 pb-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                 <Sliders className="h-5 w-5" />
               </div>
               <div>
-                <CardTitle className="text-base">Profil Sectoriel Actif</CardTitle>
+                <CardTitle className="text-base">Profil Sectoriel de l&apos;Établissement</CardTitle>
                 <CardDescription className="text-xs">
-                  Boulangeries & Pâtisseries (Artisans de proximité)
+                  Définit les règles de fidélité et modèles de campagnes adaptés à votre métier
                 </CardDescription>
               </div>
             </div>
-            <Badge variant="secondary" className="text-xs">
-              Cumul : 1 passage = 10 pts
-            </Badge>
+            <select
+              value={selectedSector}
+              onChange={(e) => setSelectedSector(e.target.value)}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              {sectorsList.map((s) => (
+                <option key={s.code} value={s.code}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
           </div>
         </CardHeader>
       </Card>

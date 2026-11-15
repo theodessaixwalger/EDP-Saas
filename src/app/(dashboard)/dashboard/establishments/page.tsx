@@ -10,28 +10,18 @@ import { Label } from "@/components/ui/label";
 
 export default function EstablishmentsPage() {
   const [showAddModal, setShowAddModal] = useState(false);
-  const [establishments, setEstablishments] = useState([
-    {
-      id: "est-1",
-      name: "Boulangerie du Marché — Centre",
-      category: "Boulangeries & Pâtisseries",
-      address: "14 Rue du Commerce, 69002 Lyon",
-      phone: "04 78 00 12 34",
-      email: "lyon-centre@boulangeriedumarche.fr",
-      isActive: true,
-      activeModulesCount: 6,
-    },
-    {
-      id: "est-2",
-      name: "Boulangerie du Marché — Gare",
-      category: "Boulangeries & Pâtisseries",
-      address: "2 Boulevard des Brotteaux, 69006 Lyon",
-      phone: "04 78 00 56 78",
-      email: "lyon-gare@boulangeriedumarche.fr",
-      isActive: true,
-      activeModulesCount: 5,
-    },
-  ]);
+  const [establishments, setEstablishments] = useState<
+    Array<{
+      id: string;
+      name: string;
+      category: string;
+      address: string;
+      phone: string;
+      email: string;
+      isActive: boolean;
+      activeModulesCount: number;
+    }>
+  >([]);
 
   const [newName, setNewName] = useState("");
   const [newCity, setNewCity] = useState("");
@@ -47,7 +37,7 @@ export default function EstablishmentsPage() {
       {
         id: `est-${Date.now()}`,
         name: newName,
-        category: "Boulangeries & Pâtisseries",
+        category: "Commerce de proximité",
         address: `${newAddress}, ${newPostalCode} ${newCity}`,
         phone: "Non renseigné",
         email: "Non renseigné",
@@ -86,58 +76,78 @@ export default function EstablishmentsPage() {
       </div>
 
       {/* Grid of establishments */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {establishments.map((est) => (
-          <Card key={est.id} className="border-slate-200">
-            <CardHeader className="p-6 pb-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-                    <Store className="h-5 w-5" />
+      {establishments.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center shadow-xs">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-600 mb-3">
+            <Store className="h-6 w-6" />
+          </div>
+          <h3 className="text-sm font-semibold text-slate-900">Aucun établissement configuré</h3>
+          <p className="mt-1 text-xs text-slate-500 max-w-sm">
+            Vous n&apos;avez pas encore créé de point de vente. Ajoutez votre premier commerce physique pour activer vos outils marketing.
+          </p>
+          <Button
+            onClick={() => setShowAddModal(true)}
+            size="sm"
+            className="mt-4 gap-1.5 shadow-sm text-xs"
+          >
+            <Plus className="h-4 w-4" />
+            Ajouter mon premier établissement
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {establishments.map((est) => (
+            <Card key={est.id} className="border-slate-200">
+              <CardHeader className="p-6 pb-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                      <Store className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">{est.name}</CardTitle>
+                      <CardDescription className="text-xs">{est.category}</CardDescription>
+                    </div>
                   </div>
-                  <div>
-                    <CardTitle className="text-base">{est.name}</CardTitle>
-                    <CardDescription className="text-xs">{est.category}</CardDescription>
-                  </div>
+                  <Badge variant={est.isActive ? "success" : "secondary"} className="text-[11px]">
+                    {est.isActive ? "Actif" : "Inactif"}
+                  </Badge>
                 </div>
-                <Badge variant={est.isActive ? "success" : "secondary"} className="text-[11px]">
-                  {est.isActive ? "Actif" : "Inactif"}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 pt-2 space-y-3">
-              <div className="text-xs text-slate-600 space-y-1.5">
-                <p className="flex items-center gap-2">
-                  <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                  <span>{est.address}</span>
-                </p>
-                <p className="flex items-center gap-2">
-                  <Phone className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                  <span>{est.phone}</span>
-                </p>
-                <p className="flex items-center gap-2">
-                  <Mail className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                  <span>{est.email}</span>
-                </p>
-              </div>
+              </CardHeader>
+              <CardContent className="p-6 pt-2 space-y-3">
+                <div className="text-xs text-slate-600 space-y-1.5">
+                  <p className="flex items-center gap-2">
+                    <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                    <span>{est.address}</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <Phone className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                    <span>{est.phone}</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <Mail className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                    <span>{est.email}</span>
+                  </p>
+                </div>
 
-              <div className="border-t border-slate-100 pt-3 flex items-center justify-between">
-                <span className="text-[11px] text-slate-400">
-                  {est.activeModulesCount} modules marketing actifs
-                </span>
-                <div className="flex items-center gap-2">
-                  <a href="/dashboard/settings">
-                    <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5 text-slate-700">
-                      <Settings2 className="h-3.5 w-3.5" />
-                      Modules
-                    </Button>
-                  </a>
+                <div className="border-t border-slate-100 pt-3 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400">
+                    {est.activeModulesCount} modules marketing actifs
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <a href="/dashboard/settings">
+                      <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5 text-slate-700">
+                        <Settings2 className="h-3.5 w-3.5" />
+                        Modules
+                      </Button>
+                    </a>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Modal / Form */}
       {showAddModal && (

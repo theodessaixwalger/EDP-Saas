@@ -10,29 +10,22 @@ import { Label } from "@/components/ui/label";
 
 export default function TeamPage() {
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [members, setMembers] = useState([
+  const [members, setMembers] = useState<
+    Array<{
+      id: string;
+      name: string;
+      email: string;
+      role: string;
+      establishment: string;
+      status: string;
+    }>
+  >([
     {
       id: "m-1",
-      name: "Alexandre Martin",
-      email: "alexandre.martin@artisan-co.fr",
+      name: "Administrateur principal",
+      email: "propriétaire",
       role: "owner",
       establishment: "Tous les établissements",
-      status: "Actif",
-    },
-    {
-      id: "m-2",
-      name: "Sarah Benali",
-      email: "sarah.benali@artisan-co.fr",
-      role: "manager",
-      establishment: "Boulangerie — Centre",
-      status: "Actif",
-    },
-    {
-      id: "m-3",
-      name: "Thomas Leroy",
-      email: "thomas.leroy@artisan-co.fr",
-      role: "staff",
-      establishment: "Boulangerie — Centre",
       status: "Actif",
     },
   ]);
@@ -48,10 +41,10 @@ export default function TeamPage() {
       ...members,
       {
         id: `m-${Date.now()}`,
-        name: inviteEmail.split("@")[0] || "Membre",
+        name: inviteEmail.split("@")[0] || "Collaborateur",
         email: inviteEmail,
         role: inviteRole,
-        establishment: "Boulangerie — Centre",
+        establishment: "Tous les établissements",
         status: "Invitation envoyée",
       },
     ]);
