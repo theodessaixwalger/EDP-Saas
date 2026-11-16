@@ -5,10 +5,18 @@ import { PendingAction } from "@/components/shared/pending-action";
 import { TableCard } from "@/components/shared/table-card";
 import { FeatureList } from "@/components/shared/feature-list";
 
+import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { StatusPill } from "@/components/shared/data-cells";
+import { Stars } from "@/components/shared/data-cells";
+import { demoCompetitors } from "@/features/demo/demo-data";
+import { cn } from "@/lib/utils";
+
 export const metadata = { title: "Concurrents — LocalBoost" };
 
-export default function CompetitorsPage() {
-  const competitors: never[] = [];
+export default async function CompetitorsPage() {
+  const { demo } = await getDashboardContext();
+  const competitors = demo ? demoCompetitors : [];
 
   return (
     <div className="space-y-6">
@@ -36,7 +44,24 @@ export default function CompetitorsPage() {
             description:
               "Recherchez les commerces proches via Google Places : leur note et leur volume d'avis seront suivis dans le temps.",
           }}
-        />
+        >
+          {competitors.map((c) => (
+            <TableRow key={c.id} className={cn(c.you && "bg-primary-soft/40 hover:bg-primary-soft/60")}>
+              <TableCell className={cn("font-medium", c.you && "text-primary")}>{c.name}</TableCell>
+              <TableCell>
+                <span className="flex items-center gap-2">
+                  <span className="tabular-nums font-medium">{c.rating.toLocaleString("fr-FR")}</span>
+                  <Stars rating={c.rating} />
+                </span>
+              </TableCell>
+              <TableCell className="tabular-nums">{c.reviews}</TableCell>
+              <TableCell>
+                <StatusPill tone={c.delta.startsWith("+") ? "success" : c.delta.startsWith("−") ? "destructive" : "neutral"}>{c.delta}</StatusPill>
+              </TableCell>
+              <TableCell className="text-muted-foreground">{c.distance}</TableCell>
+            </TableRow>
+          ))}
+        </TableCard>
 
         <Card className="h-fit">
           <CardHeader className="px-5 py-4">

@@ -16,14 +16,16 @@ import {
 import { RecommendedActionCard } from "@/features/marketing-actions/recommended-action-card";
 import { WelcomeHero } from "@/features/marketing-actions/welcome-hero";
 import { IntegrationsOrbit } from "@/features/marketing-actions/integrations-orbit";
+import { demoActions, demoKpis, demoReviews, demoSignals, demoTrend, frNumber } from "@/features/demo/demo-data";
+import { ReviewItem } from "@/features/reviews/review-item";
 
 export default async function DashboardOverviewPage() {
-  const { profile, organization, establishments } = await getDashboardContext();
+  const { profile, organization, establishments, demo } = await getDashboardContext();
 
   // Gouvernance des données : chaque valeur provient de l'état réel du compte.
-  const signals = currentSetupSignals(establishments.length);
+  const signals = demo ? demoSignals : currentSetupSignals(establishments.length);
   const steps = onboardingSteps(signals);
-  const [topAction] = evaluateSetupRules(signals);
+  const [topAction] = demo ? demoActions : evaluateSetupRules(signals);
   const firstName = profile.full_name?.split(" ")[0];
   const todayRaw = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" }).format(new Date());
   const today = todayRaw.charAt(0).toUpperCase() + todayRaw.slice(1);
@@ -68,10 +70,19 @@ export default async function DashboardOverviewPage() {
 
       <MetricStrip
         metrics={[
-          { label: "Clients fidélisés", value: "0", hint: "Aucun client enregistré" },
-          { label: "Points distribués", value: "0", hint: "0 transaction en caisse" },
-          { label: "Note Google", value: "—", hint: "Fiche non connectée" },
-          { label: "Score diagnostic", value: "—", hint: "En attente du premier audit" },
+          ...(demo
+            ? [
+                { label: "Clients fidélisés", value: frNumber(demoKpis.loyalCustomers), hint: `+${demoKpis.newCustomers30d} sur 30 jours` },
+                { label: "Points distribués", value: frNumber(demoKpis.pointsDistributed), hint: `${frNumber(demoKpis.scans30d)} scans sur 30 jours` },
+                { label: "Note Google", value: "4,7", hint: `${demoKpis.googleReviews} avis` },
+                { label: "Score diagnostic", value: `${demoKpis.diagnosticScore}`, hint: "Dernier audit il y a 2 jours" },
+              ]
+            : [
+                { label: "Clients fidélisés", value: "0", hint: "Aucun client enregistré" },
+                { label: "Points distribués", value: "0", hint: "0 transaction en caisse" },
+                { label: "Note Google", value: "—", hint: "Fiche non connectée" },
+                { label: "Score diagnostic", value: "—", hint: "En attente du premier audit" },
+              ]),
         ]}
       />
 
@@ -82,7 +93,7 @@ export default async function DashboardOverviewPage() {
           className="xl:col-span-2"
           title="Passages en caisse"
           description="Scans QR validés par votre équipe"
-          data={[]}
+          data={demo ? demoTrend().map(({ date, visits }) => ({ date, visits })) : []}
           config={{ visits: { label: "Passages", color: "hsl(var(--chart-1))" } }}
           emptyDescription="Les passages apparaîtront dès le premier scan validé en caisse."
         />
@@ -94,14 +105,26 @@ export default async function DashboardOverviewPage() {
           </CardHeader>
           <IntegrationsOrbit />
           <CardContent className="flex-1 space-y-2 px-5 pb-5 pt-0">
-            <ConnectorRow name="Google Business Profile" status="disconnected" icon={MapPin} action={connectLink("/dashboard/channels")} />
-            <ConnectorRow name="Instagram & Facebook" status="disconnected" icon={Facebook} action={connectLink("/dashboard/channels")} />
+            <ConnectorRow
+              name="Google Business Profile"
+              status={demo ? "connected" : "disconnected"}
+              description={demo ? "Synchronisé il y a 12 min" : undefined}
+              icon={MapPin}
+              action={connectLink("/dashboard/channels", demo ? "Gérer" : "Connecter")}
+            />
+            <ConnectorRow
+              name="Instagram & Facebook"
+              status={demo ? "connected" : "disconnected"}
+              description={demo ? "2 comptes connectés" : undefined}
+              icon={Facebook}
+              action={connectLink("/dashboard/channels", demo ? "Gérer" : "Connecter")}
+            />
             <ConnectorRow
               name="Brevo (emails)"
-              status="disconnected"
-              description="Non configuré"
+              status={demo ? "connected" : "disconnected"}
+              description={demo ? "Expéditeur vérifié" : "Non configuré"}
               icon={Mail}
-              action={connectLink("/dashboard/automations", "Configurer")}
+              action={connectLink("/dashboard/automations", demo ? "Gérer" : "Configurer")}
             />
           </CardContent>
         </Card>
@@ -120,6 +143,13 @@ export default async function DashboardOverviewPage() {
             </Link>
           </Button>
         </CardHeader>
+        {demo ? (
+          <ul className="divide-y border-t">
+            {demoReviews.slice(0, 3).map((r) => (
+              <ReviewItem key={r.id} review={r} />
+            ))}
+          </ul>
+        ) : (
         <EmptyState
           variant="bare"
           icon={MessageSquareOff}
@@ -129,6 +159,7 @@ export default async function DashboardOverviewPage() {
           actionHref="/dashboard/channels"
           className="border-t py-10"
         />
+        )}
       </Card>
     </div>
   );

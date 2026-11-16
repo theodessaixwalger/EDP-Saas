@@ -26,6 +26,9 @@ import {
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Profile } from "@/types";
 import { ThemeToggle } from "./theme-toggle";
+import { DemoToggle } from "@/features/demo/demo-toggle";
+import { useDemo } from "@/features/demo/demo-context";
+import { demoNotifications } from "@/features/demo/demo-data";
 import { PageSearch } from "./page-search";
 import { findNavItem } from "./nav-config";
 import { SidebarBrand, SidebarNav, type DashboardSidebarProps } from "./dashboard-sidebar";
@@ -45,6 +48,7 @@ export function DashboardHeader({ user, sidebar }: DashboardHeaderProps) {
   const pathname = usePathname() ?? "/dashboard";
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const current = findNavItem(pathname);
+  const demo = useDemo();
 
   return (
     <header className="relative z-30 flex h-14 w-full shrink-0 items-center gap-3 border-b bg-background px-4 sm:px-6">
@@ -84,13 +88,15 @@ export function DashboardHeader({ user, sidebar }: DashboardHeaderProps) {
           </Link>
         </Button>
 
+        <DemoToggle className="mr-1" />
         <ThemeToggle />
 
         {/* Notifications : aucune source branchée, aucun badge non-lu fictif */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+            <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
               <Bell className="h-4 w-4" />
+              {demo && <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-primary ring-2 ring-background" aria-hidden />}
               <span className="sr-only">Notifications</span>
             </Button>
           </DropdownMenuTrigger>
@@ -98,6 +104,18 @@ export function DashboardHeader({ user, sidebar }: DashboardHeaderProps) {
             <div className="flex items-center justify-between border-b px-4 py-3">
               <p className="text-sm font-semibold">Notifications</p>
             </div>
+            {demo ? (
+              <ul className="divide-y">
+                {demoNotifications.map((n) => (
+                  <li key={n.id} className="px-4 py-3">
+                    <p className="text-13 font-medium">{n.title}</p>
+                    <p className="mt-0.5 text-2xs text-muted-foreground">
+                      {n.detail} · {n.when}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
             <div className="flex flex-col items-center px-6 py-8 text-center">
               <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                 <BellOff className="h-4 w-4" aria-hidden />
@@ -107,6 +125,7 @@ export function DashboardHeader({ user, sidebar }: DashboardHeaderProps) {
                 Avis à traiter, échecs de publication et alertes de synchronisation apparaîtront ici.
               </p>
             </div>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
 

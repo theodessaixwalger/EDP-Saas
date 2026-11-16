@@ -2,9 +2,11 @@ import React from "react";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { DemoProvider } from "@/features/demo/demo-context";
+import { DemoBanner } from "@/features/demo/demo-banner";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { profile, organization, establishments } = await getDashboardContext();
+  const { profile, organization, establishments, demo } = await getDashboardContext();
 
   const sidebarProps = {
     currentOrganization: organization,
@@ -15,17 +17,25 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     // Coque (sidebar) → canevas encastré (header + contenu défilant) → cartes.
+    <DemoProvider demo={demo}>
     <div className="flex h-dvh overflow-hidden bg-sidebar text-foreground">
       <DashboardSidebar {...sidebarProps} />
 
       <div className="flex min-w-0 flex-1 flex-col lg:py-2 lg:pr-2">
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background lg:rounded-xl lg:border lg:border-sidebar-border">
           <DashboardHeader user={profile} sidebar={sidebarProps} />
+          {demo && <DemoBanner />}
           <main id="contenu" className="min-h-0 flex-1 overflow-y-auto">
-            <div className="mx-auto w-full max-w-[76rem] px-4 pb-16 pt-6 sm:px-6 lg:px-10 lg:pt-9">{children}</div>
+            <div
+              key={demo ? "demo" : "reel"}
+              className="mx-auto w-full max-w-[76rem] px-4 pb-16 pt-6 sm:px-6 lg:px-10 lg:pt-9"
+            >
+              {children}
+            </div>
           </main>
         </div>
       </div>
     </div>
+    </DemoProvider>
   );
 }

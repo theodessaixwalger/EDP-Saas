@@ -3,12 +3,15 @@ import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { EditorialCalendar, type EditorialEvent } from "@/features/calendar/editorial-calendar";
+import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { demoCalendarEvents } from "@/features/demo/demo-data";
 
 export const metadata = { title: "Calendrier éditorial — LocalBoost" };
 
-export default function CalendarPage() {
+export default async function CalendarPage() {
+  const { demo } = await getDashboardContext();
   // Alimenté par les contenus au statut « Programmé » (table `contents`, Phase 2).
-  const events: EditorialEvent[] = [];
+  const events: EditorialEvent[] = demo ? demoCalendarEvents : [];
 
   return (
     <div className="space-y-6">

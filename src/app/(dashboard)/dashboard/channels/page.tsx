@@ -6,6 +6,11 @@ import { PendingAction } from "@/components/shared/pending-action";
 import { TableCard } from "@/components/shared/table-card";
 import { FeatureList } from "@/components/shared/feature-list";
 
+import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { StatusPill } from "@/components/shared/data-cells";
+import { demoQueue, frDateTime } from "@/features/demo/demo-data";
+
 export const metadata = { title: "Réseaux connectés — LocalBoost" };
 
 const CONNECTORS = [
@@ -29,8 +34,9 @@ const CONNECTORS = [
   },
 ];
 
-export default function ChannelsPage() {
-  const queue: never[] = [];
+export default async function ChannelsPage() {
+  const { demo } = await getDashboardContext();
+  const queue = demo ? demoQueue : [];
 
   return (
     <div className="space-y-6">
@@ -42,7 +48,9 @@ export default function ChannelsPage() {
       <Card className="overflow-hidden">
         <CardHeader className="px-5 py-4">
           <CardTitle>Comptes</CardTitle>
-          <CardDescription>0 compte connecté sur {CONNECTORS.length}</CardDescription>
+          <CardDescription>
+            {demo ? CONNECTORS.length : 0} compte{demo ? "s" : ""} connecté{demo ? "s" : ""} sur {CONNECTORS.length}
+          </CardDescription>
         </CardHeader>
         <ul className="divide-y border-t">
           {CONNECTORS.map(({ name, api, icon: Icon, enables }) => (
@@ -54,10 +62,14 @@ export default function ChannelsPage() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-semibold">{name}</p>
-                    <Badge variant="outline" className="gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" aria-hidden />
-                      Non connecté
-                    </Badge>
+                    {demo ? (
+                      <StatusPill tone="success">Connecté</StatusPill>
+                    ) : (
+                      <Badge variant="outline" className="gap-1.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" aria-hidden />
+                        Non connecté
+                      </Badge>
+                    )}
                   </div>
                   <p className="mt-0.5 text-13 text-muted-foreground">
                     {api} · {enables.join(", ")}
@@ -65,7 +77,7 @@ export default function ChannelsPage() {
                 </div>
               </div>
               <PendingAction phase="Phase 5" variant="outline" className="shrink-0 self-start md:self-center">
-                Connecter
+                {demo ? "Gérer" : "Connecter"}
               </PendingAction>
             </li>
           ))}
@@ -84,7 +96,19 @@ export default function ChannelsPage() {
             title: "File vide",
             description: "Les publications programmées entreront dans la file à leur date d'envoi.",
           }}
-        />
+        >
+          {queue.map((q) => (
+            <TableRow key={q.id}>
+              <TableCell className="font-medium">{q.title}</TableCell>
+              <TableCell className="text-muted-foreground">{q.channel}</TableCell>
+              <TableCell className="whitespace-nowrap text-muted-foreground">{frDateTime(q.date)}</TableCell>
+              <TableCell className="tabular-nums">{q.attempts}</TableCell>
+              <TableCell>
+                <StatusPill tone={q.state.startsWith("Échec") ? "destructive" : "primary"}>{q.state}</StatusPill>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableCard>
 
         <Card className="h-fit">
           <CardHeader className="px-5 py-4">

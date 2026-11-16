@@ -8,6 +8,11 @@ import { MetricStrip } from "@/components/shared/metric-strip";
 import { TableCard } from "@/components/shared/table-card";
 import { FeatureList } from "@/components/shared/feature-list";
 
+import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { StatusPill } from "@/components/shared/data-cells";
+import { demoKpis, demoSends, frDateTime } from "@/features/demo/demo-data";
+
 export const metadata = { title: "Relances automatiques — LocalBoost" };
 
 const RULES = [
@@ -23,8 +28,10 @@ const RULES = [
   },
 ];
 
-export default function AutomationsPage() {
-  const sends: never[] = [];
+export default async function AutomationsPage() {
+  const { demo } = await getDashboardContext();
+  const sends = demo ? demoSends : [];
+  const sendTone = (s: string) => (s === "Rebond" ? "destructive" : s === "Cliqué" ? "success" : s === "Ouvert" ? "primary" : "neutral") as "destructive" | "success" | "primary" | "neutral";
 
   return (
     <div className="space-y-6">
@@ -35,10 +42,10 @@ export default function AutomationsPage() {
 
       <MetricStrip
         metrics={[
-          { label: "Relances envoyées", value: "0", hint: "30 derniers jours" },
-          { label: "Clients réactivés", value: "0", hint: "Revenus après relance" },
-          { label: "Désinscriptions", value: "0", hint: "Liste d'opposition" },
-          { label: "Inactifs détectés", value: "0", hint: "Plus de 30 jours" },
+          { label: "Relances envoyées", value: demo ? String(demoKpis.remindersSent30d) : "0", hint: "30 derniers jours" },
+          { label: "Clients réactivés", value: demo ? String(demoKpis.reactivated30d) : "0", hint: "Revenus après relance" },
+          { label: "Désinscriptions", value: demo ? String(demoKpis.unsubscribed) : "0", hint: "Liste d'opposition" },
+          { label: "Inactifs détectés", value: demo ? String(demoKpis.inactive) : "0", hint: "Plus de 30 jours" },
         ]}
       />
 
@@ -55,7 +62,7 @@ export default function AutomationsPage() {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm font-semibold">{r.name}</p>
-                      <Badge variant="secondary">Inactif</Badge>
+                      {demo ? <Badge variant="success">Actif</Badge> : <Badge variant="secondary">Inactif</Badge>}
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
                       <span className="font-medium text-foreground">Déclencheur : </span>
@@ -79,7 +86,18 @@ export default function AutomationsPage() {
               title: "Aucun envoi",
               description: "Chaque email transactionnel ou marketing envoyé via Brevo sera journalisé ici.",
             }}
-          />
+          >
+            {sends.map((x) => (
+              <TableRow key={x.id}>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{frDateTime(x.date)}</TableCell>
+                <TableCell className="font-medium">{x.customer}</TableCell>
+                <TableCell>{x.scenario}</TableCell>
+                <TableCell>
+                  <StatusPill tone={sendTone(x.status)}>{x.status}</StatusPill>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableCard>
         </div>
 
         <div className="space-y-6">
@@ -89,7 +107,12 @@ export default function AutomationsPage() {
               <CardDescription>Envois via l&apos;API officielle Brevo</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 px-5 pb-5 pt-0">
-              <ConnectorRow name="Brevo" status="disconnected" description="Non configuré" icon={Mail} />
+              <ConnectorRow
+                name="Brevo"
+                status={demo ? "connected" : "disconnected"}
+                description={demo ? "Expéditeur bonjour@maison-lefevre.fr vérifié" : "Non configuré"}
+                icon={Mail}
+              />
               <PendingAction phase="Phase 3" variant="outline" className="w-full">
                 Configurer Brevo
               </PendingAction>

@@ -18,8 +18,11 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { PageHeader } from "@/components/shared/page-header";
+import { useDemo } from "@/features/demo/demo-context";
+import { demoEstablishments } from "@/features/demo/demo-data";
 
 export default function EstablishmentsPage() {
+  const demo = useDemo();
   const [showAddModal, setShowAddModal] = useState(false);
   const [establishments, setEstablishments] = useState<
     Array<{
@@ -32,7 +35,20 @@ export default function EstablishmentsPage() {
       isActive: boolean;
       activeModulesCount: number;
     }>
-  >([]);
+  >(() =>
+    demo
+      ? demoEstablishments.map((e) => ({
+          id: e.id,
+          name: e.name,
+          category: "Boulangerie & pâtisserie",
+          address: `${e.address}, ${e.postal_code} ${e.city}`,
+          phone: e.phone ?? "Non renseigné",
+          email: e.email ?? "Non renseigné",
+          isActive: true,
+          activeModulesCount: 8,
+        }))
+      : []
+  );
 
   const [newName, setNewName] = useState("");
   const [newCity, setNewCity] = useState("");

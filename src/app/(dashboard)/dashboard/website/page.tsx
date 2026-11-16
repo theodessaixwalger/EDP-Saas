@@ -11,7 +11,7 @@ export const metadata = { title: "Site vitrine — LocalBoost" };
 const SECTIONS = ["Accueil & accroche", "Horaires & coordonnées", "Carte d'accès", "Prestations / carte", "Avis clients", "Contact"];
 
 export default async function WebsitePage() {
-  const { organization, establishments } = await getDashboardContext();
+  const { organization, establishments, demo } = await getDashboardContext();
   const slug = establishments[0]?.slug ?? organization.slug;
 
   return (
@@ -44,12 +44,12 @@ export default async function WebsitePage() {
           <CardContent className="p-6">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-display text-lg font-semibold">Site non publié</p>
+                <p className="font-display text-lg font-semibold">{demo ? "Site en ligne" : "Site non publié"}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Adresse réservée à la publication. Un domaine personnalisé pourra y être relié.
                 </p>
               </div>
-              <Badge variant="secondary">Brouillon</Badge>
+              {demo ? <Badge variant="success">Publié</Badge> : <Badge variant="secondary">Brouillon</Badge>}
             </div>
             <p className="mt-6 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Sections générées depuis votre fiche établissement

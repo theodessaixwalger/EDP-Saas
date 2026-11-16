@@ -43,7 +43,12 @@ export function EditorialCalendar({ events }: { events: EditorialEvent[] }) {
       return next;
     });
 
-  const visible = events.filter((e) => active.has(e.channel));
+  const colorOf: Record<CalendarChannel, string> = {
+    instagram: "hsl(var(--chart-5))",
+    facebook: "hsl(var(--chart-4))",
+    google: "hsl(var(--chart-2))",
+  };
+  const visible = events.filter((e) => active.has(e.channel)).map((e) => ({ ...e, color: colorOf[e.channel] }));
 
   return (
     <div className="space-y-4">

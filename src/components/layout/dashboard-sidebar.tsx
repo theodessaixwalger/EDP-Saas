@@ -9,6 +9,7 @@ import { BrandMark } from "./brand-mark";
 import { dashboardNav, isNavItemActive } from "./nav-config";
 import { Establishment, Organization } from "@/types";
 import { cn } from "@/lib/utils";
+import { useDemo } from "@/features/demo/demo-context";
 
 export interface DashboardSidebarProps {
   currentOrganization: Organization;
@@ -38,6 +39,7 @@ export function SidebarNav({
   onNavigate,
 }: DashboardSidebarProps & { onNavigate?: () => void }) {
   const pathname = usePathname() ?? "/dashboard";
+  const demo = useDemo();
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
@@ -99,8 +101,10 @@ export function SidebarNav({
           className="group relative flex items-center justify-between overflow-hidden rounded-lg border border-sidebar-border bg-sidebar-accent px-3 py-2 transition-colors hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <span className="min-w-0">
-            <span className="block text-13 font-medium text-foreground">Offre gratuite</span>
-            <span className="block truncate text-2xs text-muted-foreground">Aucun abonnement actif</span>
+            <span className="block text-13 font-medium text-foreground">{demo ? "Offre Pro" : "Offre gratuite"}</span>
+            <span className="block truncate text-2xs text-muted-foreground">
+              {demo ? "2 établissements · renouvellement mensuel" : "Aucun abonnement actif"}
+            </span>
           </span>
           <ArrowUpRight
             className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ease-out-quint group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground"

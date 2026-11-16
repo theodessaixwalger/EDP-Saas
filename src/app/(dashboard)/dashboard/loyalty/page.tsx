@@ -21,6 +21,11 @@ import { PendingAction } from "@/components/shared/pending-action";
 import { MetricStrip } from "@/components/shared/metric-strip";
 import { TableCard } from "@/components/shared/table-card";
 import { FeatureList } from "@/components/shared/feature-list";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { StatusPill } from "@/components/shared/data-cells";
+import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { demoKpis, demoRewards, demoTransactions, frDateTime, frNumber } from "@/features/demo/demo-data";
+import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Fidélité QR — LocalBoost" };
 
@@ -41,8 +46,10 @@ const ACCRUAL_MODES = [
   },
 ];
 
-export default function LoyaltyPage() {
-  const transactions: never[] = [];
+export default async function LoyaltyPage() {
+  const { demo } = await getDashboardContext();
+  const transactions = demo ? demoTransactions : [];
+  const rewards = demo ? demoRewards : [];
 
   return (
     <div className="space-y-6">
@@ -67,10 +74,10 @@ export default function LoyaltyPage() {
 
       <MetricStrip
         metrics={[
-          { label: "Membres", value: "0", hint: "Inscrits au programme" },
-          { label: "Points distribués", value: "0", hint: "Depuis le lancement" },
-          { label: "Récompenses échangées", value: "0", hint: "Depuis le lancement" },
-          { label: "Scans validés", value: "0", hint: "30 derniers jours" },
+          { label: "Membres", value: demo ? frNumber(demoKpis.loyalCustomers) : "0", hint: "Inscrits au programme" },
+          { label: "Points distribués", value: demo ? frNumber(demoKpis.pointsDistributed) : "0", hint: "Depuis le lancement" },
+          { label: "Récompenses échangées", value: demo ? String(demoKpis.rewardsRedeemed) : "0", hint: "Depuis le lancement" },
+          { label: "Scans validés", value: demo ? frNumber(demoKpis.scans30d) : "0", hint: "30 derniers jours" },
         ]}
       />
 
@@ -90,12 +97,18 @@ export default function LoyaltyPage() {
                     <CardTitle>Mode de cumul</CardTitle>
                     <CardDescription>Choisissez comment vos clients gagnent des points</CardDescription>
                   </div>
-                  <Badge variant="warning">Non configuré</Badge>
+                  {demo ? <Badge variant="success">Au montant · actif</Badge> : <Badge variant="warning">Non configuré</Badge>}
                 </div>
               </CardHeader>
               <CardContent className="grid gap-3 p-5 pt-0 sm:grid-cols-2">
                 {ACCRUAL_MODES.map(({ key, icon: Icon, title, rule, description }) => (
-                  <div key={key} className="rounded-xl border border-dashed p-4">
+                  <div
+                    key={key}
+                    className={cn(
+                      "rounded-xl border p-4",
+                      demo && key === "spend" ? "border-primary bg-primary-soft/40 ring-1 ring-primary/30" : "border-dashed"
+                    )}
+                  >
                     <div className="flex items-center gap-3">
                       <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-soft text-primary">
                         <Icon className="h-4 w-4" aria-hidden />
@@ -148,16 +161,33 @@ export default function LoyaltyPage() {
         </TabsContent>
 
         <TabsContent value="rewards">
-          <EmptyState
-            icon={Trophy}
-            title="Aucune récompense définie"
-            description="Créez des paliers (ex. une boisson offerte) que vos clients débloquent avec leurs points."
-          >
-            <PendingAction phase="Phase 2">
-              <Gift className="h-4 w-4" />
-              Créer une récompense
-            </PendingAction>
-          </EmptyState>
+          {rewards.length === 0 ? (
+            <EmptyState
+              icon={Trophy}
+              title="Aucune récompense définie"
+              description="Créez des paliers (ex. une boisson offerte) que vos clients débloquent avec leurs points."
+            >
+              <PendingAction phase="Phase 2">
+                <Gift className="h-4 w-4" />
+                Créer une récompense
+              </PendingAction>
+            </EmptyState>
+          ) : (
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              {rewards.map((r) => (
+                <Card key={r.id} className="p-5">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                    <Gift className="h-4 w-4" aria-hidden />
+                  </span>
+                  <p className="mt-3 text-sm font-semibold">{r.name}</p>
+                  <p className="mt-1 font-display text-2xl font-semibold tabular-nums tracking-[-0.03em]">
+                    {r.cost} <span className="text-sm font-medium text-muted-foreground">points</span>
+                  </p>
+                  <p className="mt-1 text-2xs text-muted-foreground">{r.redeemed} échanges depuis le lancement</p>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="history">
@@ -171,7 +201,22 @@ export default function LoyaltyPage() {
               title: "Aucune transaction",
               description: "Chaque scan validé par un employé sera tracé ici.",
             }}
-          />
+          >
+            {transactions.map((t) => (
+              <TableRow key={t.id}>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{frDateTime(t.date)}</TableCell>
+                <TableCell className="font-medium">{t.customer}</TableCell>
+                <TableCell>
+                  <StatusPill tone={t.type === "Crédit" ? "success" : "primary"}>{t.type}</StatusPill>
+                </TableCell>
+                <TableCell className={cn("tabular-nums font-medium", t.points < 0 && "text-muted-foreground")}>
+                  {t.points > 0 ? `+${t.points}` : t.points}
+                </TableCell>
+                <TableCell>{t.staff}</TableCell>
+                <TableCell className="text-muted-foreground">{t.establishment}</TableCell>
+              </TableRow>
+            ))}
+          </TableCard>
         </TabsContent>
       </Tabs>
     </div>

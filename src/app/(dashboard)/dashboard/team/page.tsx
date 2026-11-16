@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageHeader } from "@/components/shared/page-header";
+import { useDemo } from "@/features/demo/demo-context";
+import { demoTeam } from "@/features/demo/demo-data";
 
 const roleLabels: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "success" }> = {
   owner: { label: "Propriétaire", variant: "default" },
@@ -44,6 +46,7 @@ const ROLE_CARDS = [
 ];
 
 export default function TeamPage() {
+  const demo = useDemo();
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [members, setMembers] = useState<
     Array<{
@@ -54,16 +57,20 @@ export default function TeamPage() {
       establishment: string;
       status: string;
     }>
-  >([
-    {
-      id: "m-1",
-      name: "Administrateur principal",
-      email: "propriétaire",
-      role: "owner",
-      establishment: "Tous les établissements",
-      status: "Actif",
-    },
-  ]);
+  >(() =>
+    demo
+      ? demoTeam
+      : [
+          {
+            id: "m-1",
+            name: "Administrateur principal",
+            email: "propriétaire",
+            role: "owner",
+            establishment: "Tous les établissements",
+            status: "Actif",
+          },
+        ]
+  );
 
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("staff");

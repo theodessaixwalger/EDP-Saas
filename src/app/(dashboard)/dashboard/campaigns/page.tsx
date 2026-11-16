@@ -6,6 +6,11 @@ import { PendingAction } from "@/components/shared/pending-action";
 import { TableCard } from "@/components/shared/table-card";
 import { SEGMENTS } from "@/features/customers/segments";
 
+import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { StatusPill } from "@/components/shared/data-cells";
+import { demoCampaigns, demoSegmentCounts } from "@/features/demo/demo-data";
+
 export const metadata = { title: "Campagnes — LocalBoost" };
 
 /** Modèles préconfigurés du Module 5 (docs/PRODUCT.md). */
@@ -17,8 +22,10 @@ const TEMPLATES = [
   { name: "Offre flash", icon: Zap, target: "Réguliers", description: "Une promotion courte pour remplir un créneau creux." },
 ];
 
-export default function CampaignsPage() {
-  const campaigns: never[] = [];
+export default async function CampaignsPage() {
+  const { demo } = await getDashboardContext();
+  const campaigns = demo ? demoCampaigns : [];
+  const statusTone = (s: string) => (s === "En cours" ? "success" : s === "Programmée" ? "primary" : "neutral") as "success" | "primary" | "neutral";
 
   return (
     <div className="space-y-6">
@@ -75,7 +82,20 @@ export default function CampaignsPage() {
             title: "Aucune campagne envoyée",
             description: "Les performances (délivrabilité, clics, codes promo utilisés en caisse) s'afficheront ici.",
           }}
-        />
+        >
+          {campaigns.map((c) => (
+            <TableRow key={c.id}>
+              <TableCell className="font-medium">{c.name}</TableCell>
+              <TableCell className="text-muted-foreground">{c.segment}</TableCell>
+              <TableCell className="tabular-nums">{c.sent}</TableCell>
+              <TableCell className="tabular-nums">{c.clicks}</TableCell>
+              <TableCell className="tabular-nums">{c.codes}</TableCell>
+              <TableCell>
+                <StatusPill tone={statusTone(c.status)}>{c.status}</StatusPill>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableCard>
 
         <Card className="h-fit">
           <CardHeader className="px-5 py-4">
@@ -91,7 +111,7 @@ export default function CampaignsPage() {
                     <p className="text-sm font-medium">{label}</p>
                     <p className="truncate text-xs text-muted-foreground">{rule}</p>
                   </div>
-                  <span className="font-display text-sm font-semibold tabular-nums">0</span>
+                  <span className="font-display text-sm font-semibold tabular-nums">{demo ? demoSegmentCounts[key] : 0}</span>
                 </li>
               ))}
             </ul>

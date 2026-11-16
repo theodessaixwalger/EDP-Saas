@@ -2,20 +2,25 @@ import Link from "next/link";
 import { MessageSquareOff, Plus, LibraryBig } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { PendingAction } from "@/components/shared/pending-action";
 import { MetricStrip } from "@/components/shared/metric-strip";
+import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { demoKpis, demoReviews, demoReviewTemplates } from "@/features/demo/demo-data";
+import { ReviewItem, type ReviewItemData } from "@/features/reviews/review-item";
 
 export const metadata = { title: "Avis clients — LocalBoost" };
 
-type Review = { id: string; rating: number; replied: boolean };
-
-export default function ReviewsPage() {
-  // Avis rapatriés via Google Business Profile API (Phase 4) — aucun avis fictif.
-  const reviews: Review[] = [];
-  const unanswered = reviews.filter((r) => !r.replied).length;
+export default async function ReviewsPage() {
+  const { demo } = await getDashboardContext();
+  // Avis rapatriés via Google Business Profile API (Phase 4) : vides hors mode démo.
+  const reviews: ReviewItemData[] = demo ? demoReviews : [];
+  const templates = demo ? demoReviewTemplates : [];
+  const unanswered = reviews.filter((r) => !r.replied);
+  const answered = reviews.filter((r) => r.replied);
   const alerts = reviews.filter((r) => r.rating <= 2).length;
 
   const emptyInbox = (
@@ -30,6 +35,21 @@ export default function ReviewsPage() {
     </EmptyState>
   );
 
+  const list = (items: ReviewItemData[]) =>
+    reviews.length === 0 ? (
+      emptyInbox
+    ) : (
+      <Card className="overflow-hidden">
+        <ul className="divide-y">
+          {[...items]
+            .sort((a, b) => a.rating - b.rating)
+            .map((r) => (
+              <ReviewItem key={r.id} review={r} />
+            ))}
+        </ul>
+      </Card>
+    );
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -39,9 +59,9 @@ export default function ReviewsPage() {
 
       <MetricStrip
         metrics={[
-          { label: "Note moyenne", value: "—", hint: "Fiche non connectée" },
-          { label: "Avis reçus", value: String(reviews.length), hint: "Tous établissements" },
-          { label: "Sans réponse", value: String(unanswered), hint: "À traiter", tone: "warning" },
+          { label: "Note moyenne", value: demo ? "4,7" : "—", hint: demo ? "Sur 5, toutes fiches" : "Fiche non connectée" },
+          { label: "Avis reçus", value: demo ? String(demoKpis.googleReviews) : "0", hint: "Tous établissements" },
+          { label: "Sans réponse", value: String(unanswered.length), hint: "À traiter", tone: "warning" },
           { label: "Alertes 1 et 2 étoiles", value: String(alerts), hint: "Priorité haute", tone: "destructive" },
         ]}
       />
@@ -50,13 +70,13 @@ export default function ReviewsPage() {
         <div className="xl:col-span-2">
           <Tabs defaultValue="todo">
             <TabsList>
-              <TabsTrigger value="todo">À traiter ({unanswered})</TabsTrigger>
+              <TabsTrigger value="todo">À traiter ({unanswered.length})</TabsTrigger>
               <TabsTrigger value="all">Tous ({reviews.length})</TabsTrigger>
-              <TabsTrigger value="answered">Répondus ({reviews.length - unanswered})</TabsTrigger>
+              <TabsTrigger value="answered">Répondus ({answered.length})</TabsTrigger>
             </TabsList>
-            <TabsContent value="todo">{emptyInbox}</TabsContent>
-            <TabsContent value="all">{emptyInbox}</TabsContent>
-            <TabsContent value="answered">{emptyInbox}</TabsContent>
+            <TabsContent value="todo">{list(unanswered)}</TabsContent>
+            <TabsContent value="all">{list(reviews)}</TabsContent>
+            <TabsContent value="answered">{list(answered)}</TabsContent>
           </Tabs>
         </div>
 
@@ -65,20 +85,34 @@ export default function ReviewsPage() {
             <CardTitle>Réponses types</CardTitle>
             <CardDescription>Modèles paramétrables par tonalité et par secteur</CardDescription>
           </CardHeader>
-          <CardContent className="px-5 pb-5 pt-0">
-            <EmptyState
-              icon={LibraryBig}
-              title="Aucun modèle"
-              description="Créez des réponses réutilisables : remerciement, excuse, invitation à revenir."
-              variant="bare"
-              className="py-8"
-            >
-              <PendingAction phase="Phase 4" variant="outline">
-                <Plus className="h-4 w-4" />
-                Créer un modèle
-              </PendingAction>
-            </EmptyState>
-          </CardContent>
+          {templates.length === 0 ? (
+            <CardContent className="px-5 pb-5 pt-0">
+              <EmptyState
+                icon={LibraryBig}
+                title="Aucun modèle"
+                description="Créez des réponses réutilisables : remerciement, excuse, invitation à revenir."
+                variant="bare"
+                className="py-8"
+              >
+                <PendingAction phase="Phase 4" variant="outline">
+                  <Plus className="h-4 w-4" />
+                  Créer un modèle
+                </PendingAction>
+              </EmptyState>
+            </CardContent>
+          ) : (
+            <ul className="divide-y border-t">
+              {templates.map((t) => (
+                <li key={t.id} className="px-5 py-3.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-13 font-semibold">{t.name}</p>
+                    <Badge variant="outline">{t.tone}</Badge>
+                  </div>
+                  <p className="mt-1 text-13 text-muted-foreground">{t.text}</p>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
       </div>
     </div>

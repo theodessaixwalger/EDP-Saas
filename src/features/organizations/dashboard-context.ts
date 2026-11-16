@@ -2,6 +2,8 @@ import "server-only";
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type { Establishment, Organization, Profile } from "@/types";
+import { isDemoMode } from "@/features/demo/demo-mode";
+import { demoEstablishments, demoOrganization, demoProfile } from "@/features/demo/demo-data";
 
 export interface DashboardContext {
   profile: Profile;
@@ -10,6 +12,8 @@ export interface DashboardContext {
   organizationPersisted: boolean;
   role: "owner" | "manager" | "staff" | null;
   establishments: Establishment[];
+  /** Mode démo actif : données fictives, signalées par un bandeau. */
+  demo: boolean;
 }
 
 /**
@@ -19,6 +23,17 @@ export interface DashboardContext {
  * garantit qu'aucune donnée d'une autre organisation n'est renvoyée.
  */
 export const getDashboardContext = cache(async (): Promise<DashboardContext> => {
+  if (await isDemoMode()) {
+    return {
+      profile: demoProfile,
+      organization: demoOrganization,
+      organizationPersisted: true,
+      role: "owner",
+      establishments: demoEstablishments,
+      demo: true,
+    };
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -94,5 +109,6 @@ export const getDashboardContext = cache(async (): Promise<DashboardContext> => 
     organizationPersisted: organization !== null,
     role,
     establishments,
+    demo: false,
   };
 });

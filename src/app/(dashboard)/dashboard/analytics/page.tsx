@@ -5,9 +5,14 @@ import { PendingAction } from "@/components/shared/pending-action";
 import { MetricStrip } from "@/components/shared/metric-strip";
 import { TrendChart } from "@/components/charts/trend-chart";
 
+import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { demoKpis, demoTrend, frNumber } from "@/features/demo/demo-data";
+
 export const metadata = { title: "Analytics — LocalBoost" };
 
-export default function AnalyticsPage() {
+export default async function AnalyticsPage() {
+  const { demo } = await getDashboardContext();
+  const k = demoKpis;
   return (
     <div className="space-y-6">
       <PageHeader
@@ -27,10 +32,10 @@ export default function AnalyticsPage() {
         </h2>
         <MetricStrip
           metrics={[
-            { label: "Clients uniques", value: "0", hint: "30 derniers jours" },
-            { label: "Nouveaux clients", value: "0", hint: "30 derniers jours" },
-            { label: "Taux de récurrence", value: "—", hint: "Calculable dès 2 passages" },
-            { label: "Récompenses échangées", value: "0", hint: "30 derniers jours" },
+            { label: "Clients uniques", value: demo ? frNumber(k.uniqueCustomers30d) : "0", hint: "30 derniers jours" },
+            { label: "Nouveaux clients", value: demo ? String(k.newCustomers30d) : "0", hint: "30 derniers jours" },
+            { label: "Taux de récurrence", value: demo ? `${k.recurrenceRate} %` : "—", hint: demo ? "Clients revenus au moins 2 fois" : "Calculable dès 2 passages" },
+            { label: "Récompenses échangées", value: demo ? String(k.rewardsRedeemed) : "0", hint: "30 derniers jours" },
           ]}
         />
       </section>
@@ -38,7 +43,7 @@ export default function AnalyticsPage() {
       <TrendChart
         title="Fréquentation"
         description="Passages validés et nouveaux clients par jour"
-        data={[]}
+        data={demo ? demoTrend() : []}
         config={{
           visits: { label: "Passages", color: "hsl(var(--chart-1))" },
           newCustomers: { label: "Nouveaux clients", color: "hsl(var(--chart-2))" },
@@ -54,10 +59,10 @@ export default function AnalyticsPage() {
           <CardContent className="px-5 pb-5 pt-0">
             <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-border">
             {[
-              { label: "Emails délivrés", value: "0", icon: Send },
-              { label: "Taux de clic", value: "—", icon: MousePointerClick },
-              { label: "Codes utilisés", value: "0", icon: TicketPercent },
-              { label: "Taux de conversion", value: "—", icon: Percent },
+              { label: "Emails délivrés", value: demo ? frNumber(k.emailsDelivered) : "0", icon: Send },
+              { label: "Taux de clic", value: demo ? "6,4 %" : "—", icon: MousePointerClick },
+              { label: "Codes utilisés", value: demo ? String(k.codesUsed) : "0", icon: TicketPercent },
+              { label: "Taux de conversion", value: demo ? "4,0 %" : "—", icon: Percent },
             ].map(({ label, value, icon: Icon }) => (
               <div key={label} className="bg-card p-3.5">
                 <div className="flex items-center gap-2 text-muted-foreground">
@@ -79,8 +84,8 @@ export default function AnalyticsPage() {
           <CardContent className="px-5 pb-5 pt-0">
             <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-border">
             {[
-              { label: "Points émis", value: "0", icon: QrCode },
-              { label: "Points consommés", value: "0", icon: Gift },
+              { label: "Points émis", value: demo ? frNumber(k.pointsDistributed) : "0", icon: QrCode },
+              { label: "Points consommés", value: demo ? frNumber(k.pointsRedeemed) : "0", icon: Gift },
             ].map(({ label, value, icon: Icon }) => (
               <div key={label} className="bg-card p-3.5">
                 <div className="flex items-center gap-2 text-muted-foreground">

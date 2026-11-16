@@ -8,11 +8,15 @@ import { getDashboardContext } from "@/features/organizations/dashboard-context"
 import { PRICING_PLANS } from "@/features/billing/plans";
 import { cn } from "@/lib/utils";
 
+import { TableCell, TableRow } from "@/components/ui/table";
+import { StatusPill } from "@/components/shared/data-cells";
+import { demoInvoices, frDate } from "@/features/demo/demo-data";
+
 export const metadata = { title: "Abonnement — LocalBoost" };
 
 export default async function BillingPage() {
-  const { organization, establishments } = await getDashboardContext();
-  const invoices: never[] = [];
+  const { organization, establishments, demo } = await getDashboardContext();
+  const invoices = demo ? demoInvoices : [];
 
   return (
     <div className="space-y-6">
@@ -35,8 +39,8 @@ export default async function BillingPage() {
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <p className="font-display text-base font-semibold">Aucun abonnement actif</p>
-                <Badge variant="secondary">Gratuit</Badge>
+                <p className="font-display text-base font-semibold">{demo ? "Offre Pro" : "Aucun abonnement actif"}</p>
+                {demo ? <Badge variant="success">Actif · 178 € / mois</Badge> : <Badge variant="secondary">Gratuit</Badge>}
               </div>
               <p className="mt-0.5 text-sm text-muted-foreground">
                 {organization.name} · {establishments.length} établissement{establishments.length > 1 ? "s" : ""}
@@ -102,7 +106,19 @@ export default async function BillingPage() {
           title: "Aucune facture",
           description: "Vos factures Stripe seront disponibles ici dès votre premier paiement.",
         }}
-      />
+      >
+        {invoices.map((i) => (
+          <TableRow key={i.id}>
+            <TableCell className="whitespace-nowrap text-muted-foreground">{frDate(i.date)}</TableCell>
+            <TableCell className="font-mono text-2xs">{i.number}</TableCell>
+            <TableCell>{i.plan}</TableCell>
+            <TableCell className="tabular-nums font-medium">{i.amount}</TableCell>
+            <TableCell>
+              <StatusPill tone="success">{i.status}</StatusPill>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableCard>
     </div>
   );
 }

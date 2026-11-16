@@ -9,6 +9,8 @@ import { getDashboardContext } from "@/features/organizations/dashboard-context"
 import { currentSetupSignals, evaluateSetupRules } from "@/features/marketing-actions/setup-rules";
 import { RecommendedActionCard } from "@/features/marketing-actions/recommended-action-card";
 
+import { demoActions } from "@/features/demo/demo-data";
+
 export const metadata = { title: "Plan d'actions — LocalBoost" };
 
 /** Familles de règles du Module 4 (docs/PRODUCT.md) et leur disponibilité. */
@@ -21,8 +23,8 @@ const RULE_FAMILIES = [
 ];
 
 export default async function ActionsPage() {
-  const { establishments } = await getDashboardContext();
-  const actions = evaluateSetupRules(currentSetupSignals(establishments.length));
+  const { establishments, demo } = await getDashboardContext();
+  const actions = demo ? demoActions : evaluateSetupRules(currentSetupSignals(establishments.length));
 
   return (
     <div className="space-y-6">
@@ -74,7 +76,7 @@ export default async function ActionsPage() {
                     <TableCell className="font-medium">{r.family}</TableCell>
                     <TableCell className="text-muted-foreground">{r.source}</TableCell>
                     <TableCell className="text-right">
-                      {r.status === "active" ? (
+                      {r.status === "active" || demo ? (
                         <Badge variant="success">Active</Badge>
                       ) : (
                         <Badge variant="outline">{r.status}</Badge>
@@ -93,9 +95,9 @@ export default async function ActionsPage() {
             <CardDescription>Données externes consultées par le moteur</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 px-5 pb-5 pt-0">
-            <ConnectorRow name="Météo (Open-Meteo)" status="disconnected" description="Prévu en Phase 3" icon={CloudSun} />
-            <ConnectorRow name="Calendrier scolaire" status="disconnected" description="Prévu en Phase 3" icon={CalendarRange} />
-            <ConnectorRow name="Fréquentation" status="disconnected" description="Requiert la fidélité (Phase 2)" icon={TrendingDown} />
+            <ConnectorRow name="Météo (Open-Meteo)" status={demo ? "connected" : "disconnected"} description={demo ? "Prévisions à 7 jours, Lyon" : "Prévu en Phase 3"} icon={CloudSun} />
+            <ConnectorRow name="Calendrier scolaire" status={demo ? "connected" : "disconnected"} description={demo ? "Zone A" : "Prévu en Phase 3"} icon={CalendarRange} />
+            <ConnectorRow name="Fréquentation" status={demo ? "connected" : "disconnected"} description={demo ? "1 164 scans sur 30 jours" : "Requiert la fidélité (Phase 2)"} icon={TrendingDown} />
             <ConnectorRow
               name="Établissements"
               status="connected"
