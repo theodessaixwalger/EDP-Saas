@@ -1,5 +1,18 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+/**
+ * tailwind-merge doit connaître les échelles ajoutées dans tailwind.config.ts,
+ * sinon `text-13` est pris pour une couleur et s'annule avec `text-foreground`.
+ */
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      "font-size": [{ text: ["2xs", "13"] }],
+      shadow: [{ shadow: ["control", "primary", "raised", "xs"] }],
+    },
+  },
+});
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

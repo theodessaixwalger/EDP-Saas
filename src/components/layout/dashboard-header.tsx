@@ -2,69 +2,162 @@
 
 import React from "react";
 import Link from "next/link";
-import { Bell, Search, User, LogOut, ExternalLink } from "lucide-react";
+import { usePathname } from "next/navigation";
+import {
+  Bell,
+  BellOff,
+  ChevronRight,
+  CreditCard,
+  ExternalLink,
+  LogOut,
+  Menu,
+  Settings,
+  Users,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Profile } from "@/types";
+import { ThemeToggle } from "./theme-toggle";
+import { PageSearch } from "./page-search";
+import { findNavItem } from "./nav-config";
+import { SidebarBrand, SidebarNav, type DashboardSidebarProps } from "./dashboard-sidebar";
 
 interface DashboardHeaderProps {
   user?: Profile | null;
+  sidebar: DashboardSidebarProps;
 }
 
-export function DashboardHeader({ user }: DashboardHeaderProps) {
+function initials(name?: string | null) {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || "?";
+}
+
+export function DashboardHeader({ user, sidebar }: DashboardHeaderProps) {
+  const pathname = usePathname() ?? "/dashboard";
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const current = findNavItem(pathname);
+
   return (
-    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200/90 bg-white px-6">
-      {/* Search Bar / Context Indicator */}
-      <div className="flex items-center gap-3 w-96">
-        <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Rechercher une campagne, un client, un contenu..."
-            className="w-full rounded-lg border border-slate-200 bg-slate-50/50 py-1.5 pl-9 pr-4 text-xs text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-all"
-          />
-        </div>
+    <header className="relative z-30 flex h-14 w-full shrink-0 items-center gap-3 border-b bg-background px-4 sm:px-6">
+      {/* Navigation mobile */}
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetTrigger asChild>
+          <Button variant="ghost" size="icon" className="-ml-1 lg:hidden">
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Ouvrir la navigation</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="flex w-72 flex-col gap-0 border-sidebar-border bg-sidebar p-0">
+          <SheetTitle className="sr-only">Navigation</SheetTitle>
+          <div className="flex h-14 shrink-0 items-center px-5">
+            <SidebarBrand />
+          </div>
+          <SidebarNav {...sidebar} onNavigate={() => setMobileOpen(false)} />
+        </SheetContent>
+      </Sheet>
+
+      {/* Fil d'Ariane */}
+      <nav aria-label="Fil d'Ariane" className="hidden min-w-0 items-center gap-1.5 text-13 md:flex">
+        <span className="text-muted-foreground">{current?.group ?? "Espace commerçant"}</span>
+        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60" aria-hidden />
+        <span className="truncate font-medium text-foreground">{current?.label ?? "Tableau de bord"}</span>
+      </nav>
+
+      <div className="flex flex-1 justify-end md:justify-center">
+        <PageSearch className="hidden sm:block" />
       </div>
 
-      {/* Right Controls */}
-      <div className="flex items-center gap-3">
-        {/* Quick Customer Loyalty Portal preview */}
-        <Link href="/fidelite/demo" target="_blank">
-          <Button variant="ghost" size="sm" className="text-xs text-slate-600 gap-1.5">
-            <ExternalLink className="h-3.5 w-3.5 text-slate-400" />
-            Portail client mobile
-          </Button>
-        </Link>
-
-        {/* Notification Bell */}
-        <button className="relative rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
-          <Bell className="h-4 w-4" />
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-brand-600 ring-2 ring-white" />
-        </button>
-
-        <div className="h-4 w-px bg-slate-200" />
-
-        {/* User Pill */}
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-600 font-medium text-xs">
-            {user?.full_name ? user.full_name.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
-          </div>
-          <div className="hidden md:block text-left">
-            <p className="text-xs font-semibold text-slate-900 leading-tight">
-              {user?.full_name || "Commerçant"}
-            </p>
-            <p className="text-[10px] text-slate-400 leading-tight">
-              {user?.email || "propriétaire"}
-            </p>
-          </div>
-          <Link href="/login">
-            <button
-              title="Déconnexion"
-              className="ml-2 rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-            </button>
+      <div className="flex items-center gap-1">
+        <Button variant="ghost" size="sm" asChild className="hidden text-muted-foreground hover:text-foreground xl:inline-flex">
+          <Link href="/fidelite/demo" target="_blank" rel="noopener">
+            <ExternalLink className="h-3.5 w-3.5" />
+            Portail client
           </Link>
-        </div>
+        </Button>
+
+        <ThemeToggle />
+
+        {/* Notifications : aucune source branchée, aucun badge non-lu fictif */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+              <Bell className="h-4 w-4" />
+              <span className="sr-only">Notifications</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80 p-0">
+            <div className="flex items-center justify-between border-b px-4 py-3">
+              <p className="text-sm font-semibold">Notifications</p>
+            </div>
+            <div className="flex flex-col items-center px-6 py-8 text-center">
+              <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+                <BellOff className="h-4 w-4" aria-hidden />
+              </span>
+              <p className="text-sm font-medium">Vous êtes à jour</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Avis à traiter, échecs de publication et alertes de synchronisation apparaîtront ici.
+              </p>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <div className="mx-1 hidden h-5 w-px bg-border sm:block" aria-hidden />
+
+        {/* Compte */}
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-lg p-1 pr-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-foreground font-display text-2xs font-semibold text-background ring-2 ring-background">
+              {initials(user?.full_name)}
+            </span>
+            <span className="hidden max-w-[10rem] md:block">
+              <span className="block truncate text-13 font-medium leading-tight text-foreground">
+                {user?.full_name || "Commerçant"}
+              </span>
+              <span className="block truncate text-2xs leading-tight text-muted-foreground">
+                {user?.email || "Propriétaire"}
+              </span>
+            </span>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel className="font-normal">
+              <p className="truncate text-sm font-medium">{user?.full_name || "Commerçant"}</p>
+              <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/settings">
+                <Settings /> Paramètres
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/team">
+                <Users /> Équipe & rôles
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/billing">
+                <CreditCard /> Abonnement
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <form action="/auth/signout" method="post">
+              <DropdownMenuItem asChild>
+                <button type="submit" className="w-full text-destructive focus:text-destructive">
+                  <LogOut /> Se déconnecter
+                </button>
+              </DropdownMenuItem>
+            </form>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

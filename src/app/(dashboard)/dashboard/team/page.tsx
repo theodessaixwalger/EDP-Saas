@@ -1,12 +1,47 @@
 "use client";
 
 import React, { useState } from "react";
-import { Users, UserPlus, Shield, Check, Mail } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Mail, UserPlus } from "lucide-react";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { PageHeader } from "@/components/shared/page-header";
+
+const roleLabels: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "success" }> = {
+  owner: { label: "Propriétaire", variant: "default" },
+  manager: { label: "Responsable", variant: "secondary" },
+  staff: { label: "Employé (caisse)", variant: "outline" },
+};
+
+const ROLE_CARDS = [
+  {
+    role: "owner",
+    title: "Contrôle total",
+    description: "Facturation Stripe, ajout d'établissements, gestion de l'équipe et de tous les modules.",
+  },
+  {
+    role: "manager",
+    title: "Pilotage marketing",
+    description: "Création de campagnes, validation des contenus, réponses aux avis et statistiques.",
+  },
+  {
+    role: "staff",
+    title: "Opérations caisse & fidélité",
+    description: "Scan des QR codes clients et validation de l'attribution de points en boutique.",
+  },
+];
 
 export default function TeamPage() {
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -53,166 +88,124 @@ export default function TeamPage() {
     setShowInviteModal(false);
   };
 
-  const roleLabels: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "success" }> = {
-    owner: { label: "Propriétaire", variant: "default" },
-    manager: { label: "Responsable", variant: "secondary" },
-    staff: { label: "Employé (Caisse)", variant: "outline" },
-  };
-
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Équipe & Permissions
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Gérez les collaborateurs ayant accès aux outils marketing et à l&apos;encaissement fidélité
-          </p>
-        </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Équipe & rôles"
+        description="Gérez les collaborateurs ayant accès aux outils marketing et à l'encaissement fidélité."
+        actions={
+          <Button onClick={() => setShowInviteModal(true)} size="sm">
+            <UserPlus className="h-4 w-4" />
+            Inviter un collaborateur
+          </Button>
+        }
+      />
 
-        <Button
-          onClick={() => setShowInviteModal(true)}
-          size="sm"
-          className="gap-1.5 shadow-sm"
-        >
-          <UserPlus className="h-4 w-4" />
-          Inviter un collaborateur
-        </Button>
-      </div>
-
-      {/* Role explanation cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <Badge variant="default" className="text-[10px] mb-2">
-            Propriétaire
-          </Badge>
-          <p className="text-xs font-semibold text-slate-900">Contrôle total</p>
-          <p className="text-[11px] text-slate-500 mt-1">
-            Facturation Stripe, ajout d&apos;établissements, gestion de l&apos;équipe et de tous les modules.
-          </p>
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <Badge variant="secondary" className="text-[10px] mb-2">
-            Responsable
-          </Badge>
-          <p className="text-xs font-semibold text-slate-900">Pilotage marketing</p>
-          <p className="text-[11px] text-slate-500 mt-1">
-            Création de campagnes, validation des contenus, réponses aux avis et analyse des statistiques.
-          </p>
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <Badge variant="outline" className="text-[10px] mb-2">
-            Employé
-          </Badge>
-          <p className="text-xs font-semibold text-slate-900">Opérations caisse & fidélité</p>
-          <p className="text-[11px] text-slate-500 mt-1">
-            Scan ultra-rapide des QR codes clients et validation de l&apos;attribution de points en boutique.
-          </p>
-        </div>
-      </div>
-
-      {/* Members Table */}
-      <Card className="border-slate-200">
-        <CardHeader className="p-6 pb-4">
-          <CardTitle className="text-base">Membres Actifs ({members.length})</CardTitle>
-          <CardDescription className="text-xs">
-            Comptes rattachés à votre organisation
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="divide-y divide-slate-100">
-            {members.map((member) => (
-              <div
-                key={member.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 px-6 hover:bg-slate-50/50 transition-colors gap-2"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-700 font-semibold text-xs">
-                    {member.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-slate-900">{member.name}</p>
-                    <p className="text-[11px] text-slate-500 flex items-center gap-1">
-                      <Mail className="h-3 w-3 inline" />
-                      {member.email}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 text-xs">
-                  <span className="text-slate-500 hidden md:inline">
-                    {member.establishment}
-                  </span>
-                  <Badge variant={roleLabels[member.role]?.variant || "outline"} className="text-[10px]">
-                    {roleLabels[member.role]?.label || member.role}
-                  </Badge>
-                  <span className="text-[11px] text-slate-400">
-                    {member.status}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
+      <Card className="overflow-hidden">
+        <dl className="grid gap-px bg-border md:grid-cols-3">
+          {ROLE_CARDS.map((r) => (
+            <div key={r.role} className="bg-card p-5">
+              <dt className="flex items-center justify-between gap-2">
+                <span className="text-13 font-semibold">{r.title}</span>
+                <Badge variant={roleLabels[r.role].variant}>{roleLabels[r.role].label}</Badge>
+              </dt>
+              <dd className="mt-1.5 text-13 text-muted-foreground">{r.description}</dd>
+            </div>
+          ))}
+        </dl>
       </Card>
 
-      {/* Invite Modal */}
-      {showInviteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-slate-200">
-            <h3 className="text-lg font-bold text-slate-900 mb-1">
-              Inviter un collaborateur
-            </h3>
-            <p className="text-xs text-slate-500 mb-5">
-              Un email d&apos;invitation contenant un lien sécurisé lui sera adressé
-            </p>
-
-            <form onSubmit={handleInvite} className="space-y-4">
-              <div>
-                <Label htmlFor="inviteEmail">Adresse email du collaborateur</Label>
-                <Input
-                  id="inviteEmail"
-                  type="email"
-                  placeholder="collaborateur@artisan-co.fr"
-                  required
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="role">Rôle attribué</Label>
-                <select
-                  id="role"
-                  value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value)}
-                  className="mt-1 flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                >
-                  <option value="staff">Employé (Scan fidélité en caisse)</option>
-                  <option value="manager">Responsable (Marketing & Campagnes)</option>
-                  <option value="owner">Propriétaire (Tous les droits)</option>
-                </select>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowInviteModal(false)}
-                >
-                  Annuler
-                </Button>
-                <Button type="submit" size="sm">
-                  Envoyer l&apos;invitation
-                </Button>
-              </div>
-            </form>
-          </div>
+      <Card className="overflow-hidden">
+        <CardHeader className="p-5">
+          <CardTitle>Membres ({members.length})</CardTitle>
+          <CardDescription>Comptes rattachés à votre organisation</CardDescription>
+        </CardHeader>
+        <div className="border-t">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Membre</TableHead>
+                <TableHead className="hidden md:table-cell">Périmètre</TableHead>
+                <TableHead>Rôle</TableHead>
+                <TableHead className="text-right">Statut</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {members.map((member) => (
+                <TableRow key={member.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold">
+                        {member.name.charAt(0).toUpperCase()}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate font-medium">{member.name}</p>
+                        <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
+                          <Mail className="h-3 w-3" aria-hidden />
+                          {member.email}
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground md:table-cell">{member.establishment}</TableCell>
+                  <TableCell>
+                    <Badge variant={roleLabels[member.role]?.variant || "outline"}>
+                      {roleLabels[member.role]?.label || member.role}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right text-xs text-muted-foreground">{member.status}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
-      )}
+      </Card>
+
+      <Sheet open={showInviteModal} onOpenChange={setShowInviteModal}>
+        <SheetContent className="flex w-full flex-col sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>Inviter un collaborateur</SheetTitle>
+            <SheetDescription>Un email contenant un lien sécurisé lui sera adressé.</SheetDescription>
+          </SheetHeader>
+
+          <form onSubmit={handleInvite} className="flex flex-1 flex-col gap-4 pt-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="inviteEmail">Adresse email</Label>
+              <Input
+                id="inviteEmail"
+                type="email"
+                placeholder="collaborateur@artisan-co.fr"
+                required
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="role">Rôle attribué</Label>
+              <Select value={inviteRole} onValueChange={setInviteRole}>
+                <SelectTrigger id="role" className="h-10 rounded-lg">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="staff">Employé — scan fidélité en caisse</SelectItem>
+                  <SelectItem value="manager">Responsable — marketing & campagnes</SelectItem>
+                  <SelectItem value="owner">Propriétaire — tous les droits</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <SheetFooter className="mt-auto gap-2 border-t pt-4">
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowInviteModal(false)}>
+                Annuler
+              </Button>
+              <Button type="submit" size="sm">
+                Envoyer l&apos;invitation
+              </Button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

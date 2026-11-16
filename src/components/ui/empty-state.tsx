@@ -1,6 +1,9 @@
-import React from "react";
-import { LucideIcon } from "lucide-react";
+import * as React from "react";
+import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
 import { Button } from "./button";
+import { Ripple } from "@/components/effects/ripple";
+import { cn } from "@/lib/utils";
 
 interface EmptyStateProps {
   icon: LucideIcon;
@@ -9,8 +12,14 @@ interface EmptyStateProps {
   actionLabel?: string;
   onAction?: () => void;
   actionHref?: string;
+  /** Actions personnalisées (remplace actionLabel). */
+  children?: React.ReactNode;
+  /** `bare` : sans cadre, pour un usage à l'intérieur d'une Card. */
+  variant?: "default" | "bare";
+  className?: string;
 }
 
+/** État vide : ondes Ripple qui respirent autour de l'icône. */
 export function EmptyState({
   icon: Icon,
   title,
@@ -18,26 +27,40 @@ export function EmptyState({
   actionLabel,
   onAction,
   actionHref,
+  children,
+  variant = "default",
+  className,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-white p-8 text-center shadow-sm">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-50 text-slate-500 mb-4">
-        <Icon className="h-6 w-6 text-brand-600" />
-      </div>
-      <h3 className="text-base font-semibold text-slate-900">{title}</h3>
-      <p className="mt-1 text-sm text-slate-500 max-w-sm">{description}</p>
-      {actionLabel && (
-        <div className="mt-5">
-          {actionHref ? (
-            <a href={actionHref}>
-              <Button size="sm">{actionLabel}</Button>
-            </a>
-          ) : (
-            <Button size="sm" onClick={onAction}>
-              {actionLabel}
-            </Button>
-          )}
-        </div>
+    <div
+      className={cn(
+        "relative isolate flex flex-col items-center justify-center overflow-hidden px-6 py-14 text-center",
+        variant === "default" && "rounded-xl border border-dashed border-border bg-card",
+        className
+      )}
+    >
+      <Ripple className="-z-10 inset-x-0 bottom-auto top-[-102px] h-[360px]" mainCircleSize={96} numCircles={5} />
+      <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border bg-card text-foreground shadow-raised dark:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.06)]">
+        <Icon className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.75} aria-hidden />
+      </span>
+      <h3 className="font-display text-[0.9375rem] font-semibold tracking-[-0.01em] text-foreground">{title}</h3>
+      <p className="mt-1 max-w-[23rem] text-pretty text-13 text-muted-foreground">{description}</p>
+      {children ? (
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-2">{children}</div>
+      ) : (
+        actionLabel && (
+          <div className="mt-5">
+            {actionHref ? (
+              <Button size="sm" asChild>
+                <Link href={actionHref}>{actionLabel}</Link>
+              </Button>
+            ) : (
+              <Button size="sm" onClick={onAction}>
+                {actionLabel}
+              </Button>
+            )}
+          </div>
+        )
       )}
     </div>
   );

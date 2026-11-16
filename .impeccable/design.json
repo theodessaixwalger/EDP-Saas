@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-16T18:00:00Z",
+  "title": "Design System: LocalBoost — SaaS premium animé",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Violet LocalBoost",
+        "canonical": "hsl(252 56% 57%)"
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Fond",
+        "canonical": "hsl(240 14% 98.6%)"
+      },
+      "dark-background": {
+        "role": "neutral",
+        "displayName": "Fond sombre",
+        "canonical": "hsl(240 6% 5.2%)"
+      }
+    },
+    "typographyMeta": {
+      "hero": {
+        "displayName": "Accueil",
+        "purpose": "Salutation de la vue d'ensemble."
+      },
+      "display": {
+        "displayName": "Titre de page",
+        "purpose": "Titre des en-têtes de page."
+      },
+      "metric": {
+        "displayName": "Chiffre",
+        "purpose": "Valeurs des cartes indicateurs, chiffres tabulaires."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Codes de règles déterministes, raccourcis clavier."
+      }
+    },
+    "shadows": [
+      {
+        "name": "primary",
+        "value": "0 1px 2px 0 rgb(30 27 75 / 0.25), inset 0 1px 0 0 rgb(255 255 255 / 0.14)",
+        "purpose": "Bouton principal."
+      },
+      {
+        "name": "raised",
+        "value": "0 1px 2px 0 rgb(15 15 20 / 0.06), 0 1px 1px -0.5px rgb(15 15 20 / 0.04)",
+        "purpose": "Item actif, pastilles d'icône."
+      },
+      {
+        "name": "dark-sheen",
+        "value": "inset 0 1px 0 0 rgb(255 255 255 / 0.04)",
+        "purpose": "Reflet supérieur des surfaces en sombre."
+      }
+    ],
+    "motion": [
+      {
+        "name": "animated-grid",
+        "value": "4s fade, repeat reverse, repositionnement aléatoire",
+        "purpose": "Cases de grille qui s'allument."
+      },
+      {
+        "name": "border-beam",
+        "value": "9s linear infinite (offset-path)",
+        "purpose": "Trait violet uni qui parcourt la bordure de l'élément prioritaire."
+      },
+      {
+        "name": "ripple",
+        "value": "3.4s ease infinite",
+        "purpose": "Ondes des états vides."
+      },
+      {
+        "name": "orbit",
+        "value": "22s / 30s linear infinite",
+        "purpose": "Intégrations en orbite."
+      },
+      {
+        "name": "out-quint",
+        "value": "cubic-bezier(0.23, 1, 0.32, 1)",
+        "purpose": "Transitions d'état."
+      },
+      {
+        "name": "pulse",
+        "value": "2s cubic-bezier(0.4,0,0.6,1) infinite",
+        "purpose": "Étape suivante de la jauge d'installation."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Bouton principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Action principale, violet avec reflet.",
+      "html": "<button class=\"ds-btn-primary\">Scanner un QR client</button>",
+      "css": ".ds-btn-primary { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); height: 32px; padding: 0 12px; border: 0; border-radius: 8px; font: 500 13px/1 Inter, system-ui, sans-serif; box-shadow: 0 1px 2px 0 rgb(30 27 75 / 0.25), inset 0 1px 0 0 rgb(255 255 255 / 0.14); transition: background-color .15s, transform .15s; } .ds-btn-primary:hover { background: hsl(var(--primary) / 0.92); } .ds-btn-primary:active { transform: scale(0.98); } .ds-btn-primary:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }"
+    },
+    {
+      "name": "Bouton contour",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Action secondaire.",
+      "html": "<button class=\"ds-btn-outline\">Nouvelle publication</button>",
+      "css": ".ds-btn-outline { background: hsl(var(--card)); color: hsl(var(--foreground)); height: 32px; padding: 0 12px; border: 1px solid hsl(var(--input)); border-radius: 8px; font: 500 13px/1 Inter, system-ui, sans-serif; } .ds-btn-outline:hover { background: hsl(var(--accent)); } .ds-btn-outline:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }"
+    },
+    {
+      "name": "Carte indicateur (Magic Card)",
+      "kind": "card",
+      "refersTo": "metric-card",
+      "description": "Indicateur dont la bordure s'éclaire en gris au survol.",
+      "html": "<div class=\"ds-metric\"><p class=\"ds-l\">Clients fidélisés</p><p class=\"ds-v\">0</p><p class=\"ds-h\">Aucun client enregistré</p></div>",
+      "css": ".ds-metric { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 14px; padding: 16px 20px; width: 220px; } .ds-l { margin: 0; font: 13px Inter, sans-serif; color: hsl(var(--muted-foreground)); } .ds-v { margin: 10px 0 0; font: 600 32px/1 Geist, sans-serif; letter-spacing: -0.04em; color: hsl(var(--foreground)); } .ds-h { margin: 8px 0 0; font: 11px Inter, sans-serif; color: hsl(var(--muted-foreground)); } .ds-metric:hover { border-color: hsl(var(--foreground) / 0.28); }"
+    },
+    {
+      "name": "Item de navigation actif",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Item surélevé sur la coque, icône violette.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-item ds-active\" href=\"#\">Vue d'ensemble</a><a class=\"ds-item\" href=\"#\">Plan d'actions</a></nav>",
+      "css": ".ds-nav { background: hsl(var(--sidebar)); padding: 12px; width: 220px; } .ds-item { display: flex; align-items: center; height: 32px; padding: 0 8px; border-radius: 8px; font: 500 13px Inter, sans-serif; color: hsl(var(--sidebar-foreground)); text-decoration: none; } .ds-item:hover { background: hsl(var(--sidebar-accent) / .6); } .ds-active { background: hsl(var(--sidebar-accent)); color: hsl(var(--foreground)); box-shadow: 0 0 0 1px hsl(var(--sidebar-border)), 0 1px 2px 0 rgb(15 15 20 / .06); }"
+    },
+    {
+      "name": "Badge action recommandée",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Pilule violette douce.",
+      "html": "<span class=\"ds-chip\">Action recommandée</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; background: hsl(var(--primary-soft)); color: hsl(var(--primary)); font: 500 11px Inter, sans-serif; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Le standard SaaS premium, joué droit",
+    "overview": "Précision Linear, sobriété Vercel, lumière Raycast, sans aucun dégradé de couleur. Neutres froids et accent violet en aplat ; les fonds animés sont monochromes (grille, ondes, orbites, halo gris au survol). Les boucles sont lentes, derrière le contenu, coupées sous prefers-reduced-motion.",
+    "keyCharacteristics": [
+      "Cadre coque → canevas encastré → cartes",
+      "Accueil sur grille animée",
+      "Cartes indicateurs à bordure qui s'éclaire au pointeur",
+      "Un seul faisceau (trait uni) par écran",
+      "Ondes Ripple dans les états vides, intégrations en orbite"
+    ],
+    "rules": [
+      {
+        "name": "La règle de l'aplat",
+        "body": "Aucun dégradé de couleur ; seuls les masques de transparence fondent un motif sous le texte.",
+        "section": "colors"
+      },
+      {
+        "name": "La règle d'un seul faisceau",
+        "body": "Un seul BorderBeam par écran, sur l'élément prioritaire.",
+        "section": "elevation"
+      },
+      {
+        "name": "Pas de cartes dans des cartes",
+        "body": "À l'intérieur d'une carte : filets ou rangées en aplat.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Garder les effets lents et derrière le contenu.",
+      "Couper toutes les boucles sous prefers-reduced-motion.",
+      "Afficher « — » et la raison quand une source manque."
+    ],
+    "donts": [
+      "Pas de métaphore visuelle littérale.",
+      "Aucun dégradé de couleur.",
+      "Pas de motifs denses ni de faisceaux multiples.",
+      "Pas de sur-titre au-dessus des titres."
+    ]
+  }
+}

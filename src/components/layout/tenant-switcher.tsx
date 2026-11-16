@@ -1,8 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
-import { Store, ChevronDown, Check, Building2, Plus } from "lucide-react";
+import React from "react";
+import Link from "next/link";
+import { Building2, Check, ChevronsUpDown, Plus, Store } from "lucide-react";
 import { Establishment, Organization } from "@/types";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface TenantSwitcherProps {
   organizations: Organization[];
@@ -16,88 +25,60 @@ export function TenantSwitcher({
   currentOrganization,
   establishments,
   currentEstablishment,
+  onSelectEstablishment,
 }: TenantSwitcherProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const title =
+    currentEstablishment?.name ||
+    (establishments.length === 0 ? "Aucun établissement" : "Tous les établissements");
 
   return (
-    <div className="relative">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between rounded-lg border border-slate-200/90 bg-white p-2.5 text-left text-sm shadow-sm transition-all hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
-      >
-        <div className="flex items-center gap-3 truncate">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-brand-50 text-brand-700">
-            <Store className="h-4 w-4" />
-          </div>
-          <div className="truncate">
-            <p className="text-xs font-semibold text-slate-900 truncate">
-              {currentEstablishment?.name || (establishments.length === 0 ? "Aucun établissement" : "Tous les établissements")}
-            </p>
-            <p className="text-[11px] text-slate-500 truncate flex items-center gap-1">
-              <Building2 className="h-3 w-3 inline" />
-              {currentOrganization.name}
-            </p>
-          </div>
-        </div>
-        <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
-      </button>
+    <DropdownMenu>
+      <DropdownMenuTrigger className="group flex w-full items-center gap-2.5 rounded-lg border border-sidebar-border bg-card p-1.5 pr-2 text-left shadow-raised transition-colors hover:border-foreground/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:shadow-none">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary-soft text-primary">
+          <Store className="h-4 w-4" aria-hidden />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-13 font-semibold leading-tight text-foreground">{title}</span>
+          <span className="flex items-center gap-1 truncate text-2xs text-muted-foreground">
+            <Building2 className="h-3 w-3 shrink-0" aria-hidden />
+            <span className="truncate">{currentOrganization.name}</span>
+          </span>
+        </span>
+        <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+      </DropdownMenuTrigger>
 
-      {isOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="absolute left-0 top-full z-50 mt-1.5 w-64 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
-            <div className="px-2 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-              Établissements ({establishments.length})
-            </div>
-            <div className="max-h-48 overflow-y-auto space-y-0.5">
-              {establishments.length === 0 ? (
-                <p className="px-2.5 py-3 text-xs text-slate-400 text-center italic">
-                  Aucun établissement configuré
-                </p>
-              ) : (
-                establishments.map((est) => {
-                  const isSelected = est.id === currentEstablishment?.id;
-                  return (
-                    <button
-                      key={est.id}
-                      onClick={() => {
-                        setIsOpen(false);
-                      }}
-                      className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium text-left transition-colors ${
-                        isSelected
-                          ? "bg-brand-50 text-brand-700"
-                          : "text-slate-700 hover:bg-slate-50"
-                      }`}
-                    >
-                      <div className="truncate">
-                        <p className="truncate">{est.name}</p>
-                        <p className="text-[10px] text-slate-400 truncate">
-                          {est.city || "Point de vente"}
-                        </p>
-                      </div>
-                      {isSelected && <Check className="h-3.5 w-3.5 text-brand-600 shrink-0" />}
-                    </button>
-                  );
-                })
-              )}
-            </div>
-
-            <div className="border-t border-slate-100 mt-1.5 pt-1.5">
-              <a
-                href="/dashboard/establishments"
-                className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-brand-600 hover:bg-brand-50 font-medium transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                <Plus className="h-3.5 w-3.5" />
-                Gérer les établissements
-              </a>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+      <DropdownMenuContent align="start" className="w-[--radix-dropdown-menu-trigger-width] min-w-56">
+        <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
+          Établissements ({establishments.length})
+        </DropdownMenuLabel>
+        {establishments.length === 0 ? (
+          <p className="px-2 py-3 text-center text-sm text-muted-foreground">
+            Aucun établissement configuré
+          </p>
+        ) : (
+          establishments.map((est) => {
+            const isSelected = est.id === currentEstablishment?.id;
+            return (
+              <DropdownMenuItem key={est.id} onSelect={() => onSelectEstablishment?.(est.id)}>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate">{est.name}</span>
+                  <span className="block truncate text-xs text-muted-foreground">
+                    {est.city || "Point de vente"}
+                  </span>
+                </span>
+                {isSelected && <Check className="text-primary" />}
+              </DropdownMenuItem>
+            );
+          })
+        )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/dashboard/establishments" className="text-primary">
+            <Plus />
+            Gérer les établissements
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

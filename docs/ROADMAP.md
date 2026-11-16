@@ -14,7 +14,7 @@
 **Objectif** : Mettre en place l'architecture socle, la sécurité, l'isolation multi-tenant, le design system et la première expérience utilisateur.
 - [x] Audit de l'environnement et initialisation de la documentation (`AGENTS.md`, `docs/*`, `.cursor/rules/`).
 - [ ] Initialisation du projet Next.js avec TypeScript strict, Tailwind CSS et configuration pnpm.
-- [ ] Mise en place du Design System B2B Premium (palette `#F7F8FA`, `#111827`, `#4F46E5`, composants shadcn/ui).
+- [x] Design System « SaaS premium animé » pour l'espace commerçant (neutres froids, accent violet, effets Magic UI, composants shadcn/ui) — voir `DESIGN.md`.
 - [ ] Schéma PostgreSQL Supabase des fondations : profils, organisations, membres, établissements, rôles et RLS stricte.
 - [ ] Utilitaires d'authentification Supabase SSR (client, serveur, middleware).
 - [ ] Logique RBAC de permissions et validation de contexte multi-tenant côté serveur.

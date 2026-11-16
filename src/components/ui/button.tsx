@@ -1,30 +1,29 @@
 import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
+// Adapté de shadcn/ui button (Atlas shadcn/button, MIT) — tokens LocalBoost.
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none",
+  "inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out-quint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default:
-          "bg-brand-600 text-white shadow-sm hover:bg-brand-700 active:bg-brand-800",
+        default: "bg-primary text-primary-foreground shadow-primary hover:bg-primary/[0.92]",
         destructive:
-          "bg-destructive text-white shadow-sm hover:bg-red-700 active:bg-red-800",
+          "bg-destructive text-destructive-foreground shadow-control hover:bg-destructive/90",
         outline:
-          "border border-slate-200 bg-white text-slate-900 shadow-sm hover:bg-slate-50 hover:text-slate-900",
-        secondary:
-          "bg-slate-100 text-slate-900 hover:bg-slate-200 active:bg-slate-300",
-        ghost:
-          "text-slate-700 hover:bg-slate-100 hover:text-slate-900",
-        link:
-          "text-brand-600 underline-offset-4 hover:underline",
+          "border border-input bg-card text-foreground shadow-control hover:border-foreground/20 hover:bg-accent hover:text-accent-foreground",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "text-foreground hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline active:scale-100",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-11 rounded-lg px-6 text-base font-semibold",
+        default: "h-10 px-4 py-2 [&_svg]:size-4",
+        sm: "h-8 rounded-md px-3 text-13 [&_svg]:size-3.5",
+        lg: "h-11 px-6 text-base font-semibold",
         icon: "h-9 w-9",
+        "icon-sm": "h-8 w-8 rounded-md",
       },
     },
     defaultVariants: {
@@ -41,13 +40,10 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button";
     return (
-      <button
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
+      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
     );
   }
 );
