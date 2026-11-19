@@ -8,8 +8,8 @@ export function MarketingFooter() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">
-                <Sparkles className="h-4 w-4" />
+              <div aria-hidden className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">
+                <Sparkles className="h-4 w-4" aria-hidden />
               </div>
               <span className="text-lg font-bold tracking-tight text-slate-900">
                 Local<span className="text-brand-600">Boost</span>
@@ -23,10 +23,10 @@ export function MarketingFooter() {
             </p>
           </div>
 
-          <div>
-            <h4 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-3">
+          <nav aria-label="Produit">
+            <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-3">
               Produit
-            </h4>
+            </h2>
             <ul className="space-y-2 text-sm text-slate-600">
               <li>
                 <Link href="/#modules" className="hover:text-brand-600 transition-colors">
@@ -54,12 +54,12 @@ export function MarketingFooter() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </nav>
 
           <div>
-            <h4 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-3">
+            <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-3">
               Secteurs
-            </h4>
+            </h2>
             <ul className="space-y-2 text-sm text-slate-600">
               <li>Restaurants & Bars</li>
               <li>Boulangeries & Artisans</li>
@@ -70,10 +70,10 @@ export function MarketingFooter() {
             </ul>
           </div>
 
-          <div>
-            <h4 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-3">
+          <nav aria-label="Informations légales">
+            <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-3">
               Légal & Conformité
-            </h4>
+            </h2>
             <ul className="space-y-2 text-sm text-slate-600">
               <li>
                 <Link href="/confidentialite" className="hover:text-brand-600 transition-colors">
@@ -101,7 +101,7 @@ export function MarketingFooter() {
                 </span>
               </li>
             </ul>
-          </div>
+          </nav>
         </div>
       </div>
     </footer>

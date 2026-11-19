@@ -36,9 +36,9 @@ export function RecommendedActionCard({
               {action.code}
             </code>
           </p>
-          <h3 className="mt-2.5 text-balance font-display text-lg font-semibold leading-snug tracking-[-0.02em] text-foreground">
+          <h2 className="mt-2.5 text-balance font-display text-lg font-semibold leading-snug tracking-[-0.02em] text-foreground">
             {action.title}
-          </h3>
+          </h2>
           <p className="mt-1 max-w-[42rem] text-pretty text-13 leading-relaxed text-muted-foreground">
             {action.justification}
           </p>

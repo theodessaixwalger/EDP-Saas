@@ -46,11 +46,15 @@ export const getDashboardContext = cache(async (): Promise<DashboardContext> => 
   let establishments: Establishment[] = [];
 
   if (user) {
-    const { data: profileData } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .maybeSingle();
+    // Requêtes lancées en parallèle (un seul aller-retour au lieu de trois enchaînés) ;
+    // les établissements sont embarqués dans l'organisation. La RLS s'applique à chaque table.
+    const [{ data: profileData }, { data: members }] = await Promise.all([
+      supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+      supabase
+        .from("organization_members")
+        .select("organization_id, role, organizations(*, establishments(*))")
+        .eq("user_id", user.id),
+    ]);
 
     profile = (profileData as Profile | null) ?? {
       id: user.id,
@@ -66,23 +70,14 @@ export const getDashboardContext = cache(async (): Promise<DashboardContext> => 
       updated_at: user.created_at,
     };
 
-    const { data: members } = await supabase
-      .from("organization_members")
-      .select("organization_id, role, organizations(*)")
-      .eq("user_id", user.id);
-
     const membership = members?.[0];
     if (membership?.organizations) {
-      organization = membership.organizations as unknown as Organization;
+      const { establishments: ests, ...org } = membership.organizations as unknown as Organization & {
+        establishments?: Establishment[] | null;
+      };
+      organization = org;
       role = membership.role as DashboardContext["role"];
-
-      const { data: ests } = await supabase
-        .from("establishments")
-        .select("*")
-        .eq("organization_id", organization.id)
-        .order("created_at", { ascending: true });
-
-      establishments = (ests as Establishment[] | null) ?? [];
+      establishments = [...(ests ?? [])].sort((a, b) => a.created_at.localeCompare(b.created_at));
     }
   }
 

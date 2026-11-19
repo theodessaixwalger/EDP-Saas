@@ -71,7 +71,12 @@ export function WelcomeHero({
               const isNext = step === next;
               return (
                 <li key={step.label} className="min-w-0">
-                  <Link href={step.href} className="group block rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <Link
+                    href={step.href}
+                    aria-label={`${step.label} (${step.done ? "terminé" : "à faire"})`}
+                    aria-current={isNext ? "step" : undefined}
+                    className="group block rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
                     <span className="relative block h-1 overflow-hidden rounded-full bg-foreground/10" aria-hidden>
                       {step.done && (
                         <span

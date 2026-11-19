@@ -32,9 +32,10 @@ const columnsClass = {
 export function MetricStrip({ metrics, className }: { metrics: Metric[]; className?: string }) {
   const cols = columnsClass[metrics.length as keyof typeof columnsClass] ?? columnsClass[4];
   return (
-    <dl className={cn("grid gap-3", cols, className)}>
+    <div className={cn("grid gap-3", cols, className)}>
       {metrics.map((m) => (
         <MagicCard key={m.label} className="rounded-xl px-5 py-4 dark:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]">
+          <dl>
           <dt className="flex items-center gap-2 text-13 text-muted-foreground">
             {m.tone && <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", toneDot[m.tone])} aria-hidden />}
             <span className="line-clamp-1 sm:line-clamp-none">{m.label}</span>
@@ -43,8 +44,9 @@ export function MetricStrip({ metrics, className }: { metrics: Metric[]; classNa
             {m.value}
           </dd>
           {m.hint && <dd className="mt-2 line-clamp-2 text-2xs text-muted-foreground">{m.hint}</dd>}
+          </dl>
         </MagicCard>
       ))}
-    </dl>
+    </div>
   );
 }

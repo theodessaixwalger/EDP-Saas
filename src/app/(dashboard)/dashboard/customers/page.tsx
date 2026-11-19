@@ -8,13 +8,14 @@ import { SEGMENTS } from "@/features/customers/segments";
 import { MetricStrip } from "@/components/shared/metric-strip";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Initials, StatusPill } from "@/components/shared/data-cells";
-import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { isDemoMode } from "@/features/demo/demo-mode";
 import { demoCustomers, demoSegmentCounts, frDate } from "@/features/demo/demo-data";
 
-export const metadata = { title: "Clients — LocalBoost" };
+export const metadata = { title: "Clients" };
 
 export default async function CustomersPage() {
-  const { demo } = await getDashboardContext();
+  // Seul le mode démo est utile ici : lecture du cookie, sans aller-retour Supabase (session vérifiée par le middleware).
+  const demo = await isDemoMode();
   // Fiches clients créées à l'inscription au programme de fidélité (table `customers`, Phase 2).
   const customers = demo ? demoCustomers : [];
   const segmentLabel = (key: string) => SEGMENTS.find((s) => s.key === key)?.label ?? key;

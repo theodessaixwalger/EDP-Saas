@@ -5,17 +5,18 @@ import { PendingAction } from "@/components/shared/pending-action";
 import { TableCard } from "@/components/shared/table-card";
 import { FeatureList } from "@/components/shared/feature-list";
 
-import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { isDemoMode } from "@/features/demo/demo-mode";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { StatusPill } from "@/components/shared/data-cells";
 import { Stars } from "@/components/shared/data-cells";
 import { demoCompetitors } from "@/features/demo/demo-data";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Concurrents — LocalBoost" };
+export const metadata = { title: "Concurrents" };
 
 export default async function CompetitorsPage() {
-  const { demo } = await getDashboardContext();
+  // Seul le mode démo est utile ici : lecture du cookie, sans aller-retour Supabase (session vérifiée par le middleware).
+  const demo = await isDemoMode();
   const competitors = demo ? demoCompetitors : [];
 
   return (

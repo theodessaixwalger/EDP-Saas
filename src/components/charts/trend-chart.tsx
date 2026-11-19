@@ -8,19 +8,12 @@
  */
 
 import * as React from "react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import dynamic from "next/dynamic";
 import { LineChart } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import type { ChartConfig } from "@/components/ui/chart";
+import { RangeSelect } from "./range-select";
 import { AnimatedGridPattern } from "@/components/effects/animated-grid-pattern";
 
 export interface TrendPoint {
@@ -45,8 +38,19 @@ const RANGES = [
   { value: "7", label: "7 derniers jours" },
 ] as const;
 
-const shortDate = (value: string) =>
-  new Date(`${value}T00:00:00`).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+/**
+ * Recharts (~400 Ko) est chargé à la demande, après l'affichage de la page : le graphique
+ * a besoin de mesurer sa largeur et ne s'affiche donc jamais côté serveur. Le cadre réserve
+ * la même hauteur pendant le chargement (aucun décalage de mise en page).
+ */
+const TrendChartPlot = dynamic(() => import("./trend-chart-plot").then((m) => m.TrendChartPlot), {
+  ssr: false,
+  loading: () => <PlotPlaceholder />,
+});
+
+function PlotPlaceholder() {
+  return <div className="aspect-auto h-[240px] w-full" aria-hidden />;
+}
 
 export function TrendChart({
   title,
@@ -58,7 +62,29 @@ export function TrendChart({
   className,
 }: TrendChartProps) {
   const [range, setRange] = React.useState<string>("30");
-  const seriesKeys = Object.keys(config);
+  // Le tracé (et Recharts) n'est chargé qu'à l'approche du graphique dans la fenêtre.
+  const plotRef = React.useRef<HTMLDivElement>(null);
+  const [plotVisible, setPlotVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    const element = plotRef.current;
+    if (plotVisible || !element) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setPlotVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setPlotVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [plotVisible]);
 
   const filtered = React.useMemo(() => {
     const start = new Date();
@@ -76,18 +102,13 @@ export function TrendChart({
           <CardTitle>{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}
         </div>
-        <Select value={range} onValueChange={setRange}>
-          <SelectTrigger className="w-full rounded-lg sm:ml-auto sm:w-[170px]" aria-label="Période affichée">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            {RANGES.map((r) => (
-              <SelectItem key={r.value} value={r.value} className="rounded-lg">
-                {r.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <RangeSelect
+          value={range}
+          options={RANGES}
+          onValueChange={setRange}
+          className="w-full rounded-lg sm:ml-auto sm:w-[170px]"
+          aria-label="Période affichée"
+        />
       </CardHeader>
       <CardContent className="relative px-2 pt-4 sm:px-5 sm:pt-5">
         {isEmpty ? (
@@ -108,36 +129,9 @@ export function TrendChart({
             </div>
           </div>
         ) : (
-          <ChartContainer config={config} className="aspect-auto h-[240px] w-full">
-            <AreaChart data={filtered} margin={{ left: 0, right: 8 }}>
-              <CartesianGrid vertical={false} />
-              <YAxis tickLine={false} axisLine={false} width={32} allowDecimals={false} />
-              <XAxis
-                dataKey="date"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                minTickGap={32}
-                tickFormatter={shortDate}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent labelFormatter={(v) => shortDate(String(v))} indicator="dot" />}
-              />
-              {seriesKeys.map((key) => (
-                <Area
-                  key={key}
-                  dataKey={key}
-                  type="monotone"
-                  fill={`var(--color-${key})`}
-                  fillOpacity={0.12}
-                  stroke={`var(--color-${key})`}
-                  strokeWidth={2}
-                />
-              ))}
-              {seriesKeys.length > 1 && <ChartLegend content={<ChartLegendContent />} />}
-            </AreaChart>
-          </ChartContainer>
+          <div ref={plotRef}>
+            {plotVisible ? <TrendChartPlot data={filtered} config={config} /> : <PlotPlaceholder />}
+          </div>
         )}
       </CardContent>
     </Card>

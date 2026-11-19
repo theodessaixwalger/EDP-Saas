@@ -40,7 +40,7 @@ export default function LoyaltyClientDemoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
+    <main className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
       {/* Mobile Frame Simulation */}
       <div className="w-full max-w-sm rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200">
         {/* Top Header */}
@@ -49,7 +49,7 @@ export default function LoyaltyClientDemoPage() {
             <Sparkles className="h-3 w-3" />
             Programme Fidélité
           </div>
-          <h2 className="text-xl font-bold">Boulangerie du Marché</h2>
+          <h1 className="text-xl font-bold">Boulangerie du Marché</h1>
           <p className="text-xs text-brand-100 mt-0.5">Lyon — Centre Historique</p>
 
           {/* Points Bubble */}
@@ -84,10 +84,10 @@ export default function LoyaltyClientDemoPage() {
 
         {/* Rewards Section */}
         <div className="p-5">
-          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-            <Gift className="h-4 w-4 text-brand-600" />
+          <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <Gift className="h-4 w-4 text-brand-600" aria-hidden />
             Récompenses disponibles
-          </h3>
+          </h2>
 
           {redeemed && (
             <div className="mb-3 rounded-lg bg-emerald-50 border border-emerald-200 p-2 text-xs text-emerald-800 text-center font-medium">
@@ -134,22 +134,24 @@ export default function LoyaltyClientDemoPage() {
         {/* GDPR & Privacy Controls */}
         <div className="p-4 bg-slate-50 border-t border-slate-100 text-[11px] text-slate-500">
           <div className="flex items-center justify-between">
-            <span className="flex items-center gap-1 text-slate-700 font-medium">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+            <label htmlFor="marketing-consent" className="flex items-center gap-1 text-slate-700 font-medium">
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" aria-hidden />
               Offres par email
-            </span>
+            </label>
             <input
+              id="marketing-consent"
               type="checkbox"
+              aria-describedby="marketing-consent-hint"
               checked={marketingConsent}
               onChange={(e) => setMarketingConsent(e.target.checked)}
               className="h-3.5 w-3.5 rounded text-brand-600"
             />
           </div>
-          <p className="text-[10px] text-slate-400 mt-1">
+          <p id="marketing-consent-hint" className="text-[10px] text-slate-400 mt-1">
             Conformité RGPD : vous pouvez retirer votre consentement à tout moment.
           </p>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

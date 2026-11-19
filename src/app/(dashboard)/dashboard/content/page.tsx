@@ -10,10 +10,10 @@ import { PendingAction } from "@/components/shared/pending-action";
 import { TableCard } from "@/components/shared/table-card";
 import { MetricStrip, type MetricTone } from "@/components/shared/metric-strip";
 import { ChannelIcons, Initials, StatusPill, type PillTone } from "@/components/shared/data-cells";
-import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { isDemoMode } from "@/features/demo/demo-mode";
 import { demoContents, demoMedia, frDateTime, type DemoContentStatus } from "@/features/demo/demo-data";
 
-export const metadata = { title: "Contenus — LocalBoost" };
+export const metadata = { title: "Contenus" };
 
 /** Statuts du Module 1 (cf. docs/PRODUCT.md). */
 const STATUSES = [
@@ -26,7 +26,8 @@ const STATUSES = [
 ] as const satisfies ReadonlyArray<{ key: DemoContentStatus; label: string; tone: MetricTone; pill: PillTone }>;
 
 export default async function ContentPage() {
-  const { demo } = await getDashboardContext();
+  // Seul le mode démo est utile ici : lecture du cookie, sans aller-retour Supabase (session vérifiée par le middleware).
+  const demo = await isDemoMode();
   // Table `contents` livrée en Phase 2 : vide hors mode démo.
   const contents = demo ? demoContents : [];
   const media = demo ? demoMedia : [];

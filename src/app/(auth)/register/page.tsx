@@ -121,9 +121,9 @@ export default function RegisterPage() {
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 mb-4 border border-emerald-100 shadow-sm">
           <MailCheck className="h-7 w-7" />
         </div>
-        <h2 className="text-xl font-bold tracking-tight text-slate-900">
+        <h1 className="text-xl font-bold tracking-tight text-slate-900">
           Validez votre compte par email
-        </h2>
+        </h1>
         <p className="mt-2 text-xs text-slate-600 leading-relaxed max-w-sm mx-auto">
           Un email contenant un lien sécurisé d&apos;activation a été envoyé à l&apos;adresse :
         </p>
@@ -155,7 +155,7 @@ export default function RegisterPage() {
         </div>
 
         {resendSuccess && (
-          <div className="mt-4 rounded-lg bg-emerald-50 p-2.5 text-xs text-emerald-700 border border-emerald-200">
+          <div role="status" className="mt-4 rounded-lg bg-emerald-50 p-2.5 text-xs text-emerald-700 border border-emerald-200">
             Un nouvel email d&apos;activation vient de vous être adressé.
           </div>
         )}
@@ -172,11 +172,9 @@ export default function RegisterPage() {
             {resendLoading ? "Envoi en cours..." : "Renvoyer l'email de validation"}
           </Button>
 
-          <Link href="/login">
-            <Button variant="ghost" size="sm" className="w-full text-xs text-slate-500">
-              Retour à la page de connexion
-            </Button>
-          </Link>
+          <Button asChild variant="ghost" size="sm" className="w-full text-xs text-slate-500">
+            <Link href="/login">Retour à la page de connexion</Link>
+          </Button>
         </div>
 
         <p className="mt-4 text-[11px] text-slate-400">
@@ -189,16 +187,16 @@ export default function RegisterPage() {
   return (
     <div>
       <div className="mb-6 text-center">
-        <h2 className="text-xl font-bold tracking-tight text-slate-900">
+        <h1 className="text-xl font-bold tracking-tight text-slate-900">
           Créer votre compte LocalBoost
-        </h2>
+        </h1>
         <p className="mt-1 text-xs text-slate-500">
           14 jours d&apos;essai gratuit — Sans engagement
         </p>
       </div>
 
       {!isConfigured && (
-        <div className="mb-4 rounded-lg bg-amber-50 p-3 text-xs text-amber-800 border border-amber-200">
+        <div role="status" className="mb-4 rounded-lg bg-amber-50 p-3 text-xs text-amber-800 border border-amber-200">
           <p className="font-semibold">Mode Démonstration Local</p>
           <p className="mt-0.5 text-[11px] text-amber-700">
             Supabase n&apos;est pas encore lié dans <code>.env.local</code>. Le formulaire vous permet d&apos;accéder directement au tableau de bord pour tester l&apos;interface.
@@ -207,7 +205,7 @@ export default function RegisterPage() {
       )}
 
       {error && (
-        <div className="mb-4 rounded-lg bg-red-50 p-3 text-xs text-red-700 border border-red-200">
+        <div role="alert" className="mb-4 rounded-lg bg-red-50 p-3 text-xs text-red-700 border border-red-200">
           {error}
         </div>
       )}
@@ -217,6 +215,7 @@ export default function RegisterPage() {
           <Label htmlFor="fullName">Nom & Prénom</Label>
           <Input
             id="fullName"
+            autoComplete="name"
             type="text"
             required
             placeholder="Alexandre Martin"
@@ -230,6 +229,7 @@ export default function RegisterPage() {
           <Label htmlFor="organizationName">Nom de votre entreprise / enseigne</Label>
           <Input
             id="organizationName"
+            autoComplete="organization"
             type="text"
             required
             placeholder="Boulangerie du Marché"
@@ -243,6 +243,7 @@ export default function RegisterPage() {
           <Label htmlFor="email">Email professionnel</Label>
           <Input
             id="email"
+            autoComplete="email"
             type="email"
             required
             placeholder="contact@moncommerce.fr"
@@ -256,6 +257,7 @@ export default function RegisterPage() {
           <Label htmlFor="password">Mot de passe (8 caractères min.)</Label>
           <Input
             id="password"
+            autoComplete="new-password"
             type="password"
             required
             placeholder="••••••••"

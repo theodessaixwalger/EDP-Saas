@@ -8,14 +8,15 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { PendingAction } from "@/components/shared/pending-action";
 import { MetricStrip } from "@/components/shared/metric-strip";
-import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { isDemoMode } from "@/features/demo/demo-mode";
 import { demoKpis, demoReviews, demoReviewTemplates } from "@/features/demo/demo-data";
 import { ReviewItem, type ReviewItemData } from "@/features/reviews/review-item";
 
-export const metadata = { title: "Avis clients — LocalBoost" };
+export const metadata = { title: "Avis clients" };
 
 export default async function ReviewsPage() {
-  const { demo } = await getDashboardContext();
+  // Seul le mode démo est utile ici : lecture du cookie, sans aller-retour Supabase (session vérifiée par le middleware).
+  const demo = await isDemoMode();
   // Avis rapatriés via Google Business Profile API (Phase 4) : vides hors mode démo.
   const reviews: ReviewItemData[] = demo ? demoReviews : [];
   const templates = demo ? demoReviewTemplates : [];

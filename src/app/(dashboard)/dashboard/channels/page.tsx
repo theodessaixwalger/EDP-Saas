@@ -6,12 +6,12 @@ import { PendingAction } from "@/components/shared/pending-action";
 import { TableCard } from "@/components/shared/table-card";
 import { FeatureList } from "@/components/shared/feature-list";
 
-import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { isDemoMode } from "@/features/demo/demo-mode";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { StatusPill } from "@/components/shared/data-cells";
 import { demoQueue, frDateTime } from "@/features/demo/demo-data";
 
-export const metadata = { title: "Réseaux connectés — LocalBoost" };
+export const metadata = { title: "Réseaux connectés" };
 
 const CONNECTORS = [
   {
@@ -35,7 +35,8 @@ const CONNECTORS = [
 ];
 
 export default async function ChannelsPage() {
-  const { demo } = await getDashboardContext();
+  // Seul le mode démo est utile ici : lecture du cookie, sans aller-retour Supabase (session vérifiée par le middleware).
+  const demo = await isDemoMode();
   const queue = demo ? demoQueue : [];
 
   return (

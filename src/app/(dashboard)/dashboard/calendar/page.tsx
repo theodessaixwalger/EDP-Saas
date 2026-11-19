@@ -3,13 +3,14 @@ import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { EditorialCalendar, type EditorialEvent } from "@/features/calendar/editorial-calendar";
-import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { isDemoMode } from "@/features/demo/demo-mode";
 import { demoCalendarEvents } from "@/features/demo/demo-data";
 
-export const metadata = { title: "Calendrier éditorial — LocalBoost" };
+export const metadata = { title: "Calendrier éditorial" };
 
 export default async function CalendarPage() {
-  const { demo } = await getDashboardContext();
+  // Seul le mode démo est utile ici : lecture du cookie, sans aller-retour Supabase (session vérifiée par le middleware).
+  const demo = await isDemoMode();
   // Alimenté par les contenus au statut « Programmé » (table `contents`, Phase 2).
   const events: EditorialEvent[] = demo ? demoCalendarEvents : [];
 

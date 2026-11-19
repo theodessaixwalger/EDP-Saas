@@ -1,13 +1,16 @@
 "use client";
 // Source : Atlas magic-ui/animated-grid-pattern (Magic UI, MIT — Copyright (c) Magic UI).
-// Adapté : couleurs par tokens (currentColor), respect de prefers-reduced-motion.
+// Adapté : couleurs par tokens (currentColor), respect de prefers-reduced-motion,
+// animation CSS native (aucune bibliothèque) suspendue hors écran.
+// Les cases sont des <div> (et non des <rect> SVG) : leur animation d'opacité est alors prise
+// en charge par le compositeur (GPU), sans recalcul de style ni repeinture à chaque image.
 
 import { useCallback, useEffect, useId, useRef, useState, type ComponentPropsWithoutRef } from "react";
-import { motion, useReducedMotion } from "motion/react";
 
+import { useInViewport, usePrefersReducedMotion } from "@/lib/hooks/use-motion-prefs";
 import { cn } from "@/lib/utils";
 
-export interface AnimatedGridPatternProps extends ComponentPropsWithoutRef<"svg"> {
+export interface AnimatedGridPatternProps extends ComponentPropsWithoutRef<"div"> {
   width?: number;
   height?: number;
   x?: number;
@@ -15,13 +18,15 @@ export interface AnimatedGridPatternProps extends ComponentPropsWithoutRef<"svg"
   strokeDasharray?: number;
   numSquares?: number;
   maxOpacity?: number;
-  duration?: number;
-  repeatDelay?: number;
 }
 
 type Square = { id: number; pos: [number, number]; iteration: number };
 
-/** Grille fine dont quelques cases s'allument et s'éteignent en boucle. */
+/**
+ * Grille fine dont quelques cases s'allument et s'éteignent en boucle.
+ * Cycle d'une case (keyframes `lb-grid-square`, globals.css) : apparition 4 s,
+ * pause 0,6 s, extinction 4 s, puis la case change de position.
+ */
 export function AnimatedGridPattern({
   width = 36,
   height = 36,
@@ -31,13 +36,14 @@ export function AnimatedGridPattern({
   numSquares = 24,
   className,
   maxOpacity = 0.22,
-  duration = 4,
-  repeatDelay = 0.6,
+  style,
   ...props
 }: AnimatedGridPatternProps) {
   const id = useId();
-  const reduce = useReducedMotion();
-  const containerRef = useRef<SVGSVGElement | null>(null);
+  const reduce = usePrefersReducedMotion();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const inView = useInViewport(containerRef);
+  const active = inView && !reduce;
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [squares, setSquares] = useState<Array<Square>>([]);
 
@@ -62,10 +68,14 @@ export function AnimatedGridPattern({
   );
 
   useEffect(() => {
-    if (dimensions.width && dimensions.height && !reduce) {
+    if (!active) {
+      setSquares((current) => (current.length ? [] : current));
+      return;
+    }
+    if (dimensions.width && dimensions.height) {
       setSquares(Array.from({ length: numSquares }, (_, i) => ({ id: i, pos: getPos(), iteration: 0 })));
     }
-  }, [dimensions.width, dimensions.height, getPos, numSquares, reduce]);
+  }, [active, dimensions.width, dimensions.height, getPos, numSquares]);
 
   useEffect(() => {
     const element = containerRef.current;
@@ -84,38 +94,38 @@ export function AnimatedGridPattern({
   }, []);
 
   return (
-    <svg
+    <div
       ref={containerRef}
       aria-hidden="true"
       className={cn(
-        "pointer-events-none absolute inset-0 h-full w-full fill-foreground/[0.12] stroke-foreground/[0.14] text-primary dark:stroke-foreground/[0.11]",
+        "pointer-events-none absolute inset-0 h-full w-full overflow-hidden fill-foreground/[0.12] stroke-foreground/[0.14] text-primary dark:stroke-foreground/[0.11]",
         className
       )}
+      style={{ ...style, "--grid-max-opacity": maxOpacity } as React.CSSProperties}
       {...props}
     >
-      <defs>
-        <pattern id={id} width={width} height={height} patternUnits="userSpaceOnUse" x={x} y={y}>
-          <path d={`M.5 ${height}V.5H${width}`} fill="none" strokeDasharray={strokeDasharray} />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill={`url(#${id})`} stroke="none" />
-      <svg x={x} y={y} className="overflow-visible">
-        {squares.map(({ pos: [sx, sy], id: sid, iteration }, index) => (
-          <motion.rect
-            initial={{ opacity: 0 }}
-            animate={{ opacity: maxOpacity }}
-            transition={{ duration, repeat: 1, delay: index * 0.12, repeatType: "reverse", repeatDelay }}
-            onAnimationComplete={() => updateSquarePosition(sid)}
-            key={`${sid}-${iteration}`}
-            width={width - 1}
-            height={height - 1}
-            x={sx * width + 1}
-            y={sy * height + 1}
-            fill="currentColor"
-            strokeWidth="0"
-          />
-        ))}
+      <svg aria-hidden="true" className="absolute inset-0 h-full w-full">
+        <defs>
+          <pattern id={id} width={width} height={height} patternUnits="userSpaceOnUse" x={x} y={y}>
+            <path d={`M.5 ${height}V.5H${width}`} fill="none" strokeDasharray={strokeDasharray} />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill={`url(#${id})`} stroke="none" />
       </svg>
-    </svg>
+      {squares.map(({ pos: [sx, sy], id: sid, iteration }, index) => (
+        <div
+          key={`${sid}-${iteration}`}
+          className="absolute animate-grid-square bg-current opacity-0"
+          style={{
+            left: sx * width + 1 + x,
+            top: sy * height + 1 + y,
+            width: width - 1,
+            height: height - 1,
+            animationDelay: `${index * 0.12}s`,
+          }}
+          onAnimationEnd={() => updateSquarePosition(sid)}
+        />
+      ))}
+    </div>
   );
 }

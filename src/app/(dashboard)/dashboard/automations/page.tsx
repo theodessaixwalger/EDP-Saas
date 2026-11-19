@@ -8,12 +8,12 @@ import { MetricStrip } from "@/components/shared/metric-strip";
 import { TableCard } from "@/components/shared/table-card";
 import { FeatureList } from "@/components/shared/feature-list";
 
-import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { isDemoMode } from "@/features/demo/demo-mode";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { StatusPill } from "@/components/shared/data-cells";
 import { demoKpis, demoSends, frDateTime } from "@/features/demo/demo-data";
 
-export const metadata = { title: "Relances automatiques — LocalBoost" };
+export const metadata = { title: "Relances automatiques" };
 
 const RULES = [
   {
@@ -29,7 +29,8 @@ const RULES = [
 ];
 
 export default async function AutomationsPage() {
-  const { demo } = await getDashboardContext();
+  // Seul le mode démo est utile ici : lecture du cookie, sans aller-retour Supabase (session vérifiée par le middleware).
+  const demo = await isDemoMode();
   const sends = demo ? demoSends : [];
   const sendTone = (s: string) => (s === "Rebond" ? "destructive" : s === "Cliqué" ? "success" : s === "Ouvert" ? "primary" : "neutral") as "destructive" | "success" | "primary" | "neutral";
 

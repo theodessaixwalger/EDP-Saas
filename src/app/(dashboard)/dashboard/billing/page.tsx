@@ -12,7 +12,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { StatusPill } from "@/components/shared/data-cells";
 import { demoInvoices, frDate } from "@/features/demo/demo-data";
 
-export const metadata = { title: "Abonnement — LocalBoost" };
+export const metadata = { title: "Abonnement" };
 
 export default async function BillingPage() {
   const { organization, establishments, demo } = await getDashboardContext();

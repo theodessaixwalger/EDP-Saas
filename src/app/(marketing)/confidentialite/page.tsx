@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Politique de confidentialité (RGPD)",
+  description: "Comment LocalBoost collecte, protège et traite les données personnelles des commerçants et de leurs clients, conformément au RGPD.",
+  alternates: { canonical: "/confidentialite" },
+};
+
 export default function ConfidentialitePage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">

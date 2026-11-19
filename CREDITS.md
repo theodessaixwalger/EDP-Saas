@@ -9,5 +9,5 @@ Le design system du dashboard LocalBoost intègre des composants et tokens issus
 | Table | Origin UI | `src/components/ui/table.tsx` | MIT — Copyright (c) 2025 coss.com |
 | Structure des tokens de thème (rayons, conventions shadcn) | Origin UI, Easy UI | `src/app/globals.css`, `tailwind.config.ts` | MIT — Copyright (c) 2025 coss.com ; Copyright (c) 2026 Suraj Maurya |
 | Magic Card, Border Beam, Animated Grid Pattern, Ripple, Orbiting Circles, Animated Theme Toggler (adaptés Tailwind v3, versions monochromes) | Magic UI | `src/components/effects/*` | MIT — Copyright (c) Magic UI |
-| Polices Geist et Geist Mono | Vercel (Google Fonts) | `src/app/layout.tsx` | OFL-1.1 |
+| Polices Inter, Geist et Geist Mono (sous-ensembles latins de Google Fonts, auto-hébergés : plage de graisses utilisée, fonctions OpenType inutilisées retirées) | The Inter Project Authors ; Vercel | `src/app/fonts/*`, `src/app/layout.tsx` | OFL-1.1 |
 | Courbes d'easing (`out-quint`, `in-out-cubic`) | Component Atlas — easings standard | `tailwind.config.ts` | BSD-3-Clause — Easing Equations © 2001 Robert Penner |

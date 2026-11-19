@@ -11,7 +11,7 @@ import { RecommendedActionCard } from "@/features/marketing-actions/recommended-
 
 import { demoActions } from "@/features/demo/demo-data";
 
-export const metadata = { title: "Plan d'actions — LocalBoost" };
+export const metadata = { title: "Plan d'actions" };
 
 /** Familles de règles du Module 4 (docs/PRODUCT.md) et leur disponibilité. */
 const RULE_FAMILIES = [

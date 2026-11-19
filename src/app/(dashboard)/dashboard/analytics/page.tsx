@@ -5,13 +5,14 @@ import { PendingAction } from "@/components/shared/pending-action";
 import { MetricStrip } from "@/components/shared/metric-strip";
 import { TrendChart } from "@/components/charts/trend-chart";
 
-import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { isDemoMode } from "@/features/demo/demo-mode";
 import { demoKpis, demoTrend, frNumber } from "@/features/demo/demo-data";
 
-export const metadata = { title: "Analytics — LocalBoost" };
+export const metadata = { title: "Analytics" };
 
 export default async function AnalyticsPage() {
-  const { demo } = await getDashboardContext();
+  // Seul le mode démo est utile ici : lecture du cookie, sans aller-retour Supabase (session vérifiée par le middleware).
+  const demo = await isDemoMode();
   const k = demoKpis;
   return (
     <div className="space-y-6">

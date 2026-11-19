@@ -19,6 +19,8 @@ import { IntegrationsOrbit } from "@/features/marketing-actions/integrations-orb
 import { demoActions, demoKpis, demoReviews, demoSignals, demoTrend, frNumber } from "@/features/demo/demo-data";
 import { ReviewItem } from "@/features/reviews/review-item";
 
+export const metadata = { title: "Tableau de bord" };
+
 export default async function DashboardOverviewPage() {
   const { profile, organization, establishments, demo } = await getDashboardContext();
 

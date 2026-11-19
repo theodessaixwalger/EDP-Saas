@@ -6,12 +6,12 @@ import { PendingAction } from "@/components/shared/pending-action";
 import { TableCard } from "@/components/shared/table-card";
 import { SEGMENTS } from "@/features/customers/segments";
 
-import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { isDemoMode } from "@/features/demo/demo-mode";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { StatusPill } from "@/components/shared/data-cells";
 import { demoCampaigns, demoSegmentCounts } from "@/features/demo/demo-data";
 
-export const metadata = { title: "Campagnes — LocalBoost" };
+export const metadata = { title: "Campagnes" };
 
 /** Modèles préconfigurés du Module 5 (docs/PRODUCT.md). */
 const TEMPLATES = [
@@ -23,7 +23,8 @@ const TEMPLATES = [
 ];
 
 export default async function CampaignsPage() {
-  const { demo } = await getDashboardContext();
+  // Seul le mode démo est utile ici : lecture du cookie, sans aller-retour Supabase (session vérifiée par le middleware).
+  const demo = await isDemoMode();
   const campaigns = demo ? demoCampaigns : [];
   const statusTone = (s: string) => (s === "En cours" ? "success" : s === "Programmée" ? "primary" : "neutral") as "success" | "primary" | "neutral";
 

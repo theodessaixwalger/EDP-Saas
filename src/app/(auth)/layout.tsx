@@ -7,11 +7,11 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col justify-center bg-surface-bg py-12 sm:px-6 lg:px-8">
+    <main className="flex min-h-screen flex-col justify-center bg-surface-bg py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Link href="/" className="inline-flex items-center gap-2">
+        <Link href="/" aria-label="LocalBoost — accueil" className="inline-flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white shadow-sm">
-            <Sparkles className="h-6 w-6" />
+            <Sparkles className="h-6 w-6" aria-hidden />
           </div>
           <span className="text-2xl font-bold tracking-tight text-slate-900">
             Local<span className="text-brand-600">Boost</span>
@@ -24,6 +24,6 @@ export default function AuthLayout({
           {children}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

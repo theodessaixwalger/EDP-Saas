@@ -1,9 +1,10 @@
 "use client";
 // Source : Atlas magic-ui/magic-card (Magic UI, MIT — Copyright (c) Magic UI).
 // Adapté : Tailwind v3, tokens LocalBoost, halo monochrome (aucune couleur).
+// Sans bibliothèque d'animation : la position du pointeur est écrite dans des variables CSS
+// (aucun re-rendu React, aucun JS chargé en plus).
 
-import React, { useCallback, useEffect } from "react";
-import { motion, useMotionTemplate, useMotionValue } from "motion/react";
+import React, { useCallback, useRef } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -26,47 +27,49 @@ export function MagicCard({
   gradientOpacity = 1,
   borderColor = "hsl(var(--foreground) / 0.28)",
 }: MagicCardProps) {
-  const mouseX = useMotionValue(-gradientSize);
-  const mouseY = useMotionValue(-gradientSize);
+  const ref = useRef<HTMLDivElement>(null);
+  const offscreen = `${-gradientSize}px`;
 
-  const reset = useCallback(() => {
-    mouseX.set(-gradientSize);
-    mouseY.set(-gradientSize);
-  }, [mouseX, mouseY, gradientSize]);
+  const setPointer = useCallback((x: string, y: string) => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.setProperty("--mx", x);
+    el.style.setProperty("--my", y);
+  }, []);
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       const rect = e.currentTarget.getBoundingClientRect();
-      mouseX.set(e.clientX - rect.left);
-      mouseY.set(e.clientY - rect.top);
+      setPointer(`${e.clientX - rect.left}px`, `${e.clientY - rect.top}px`);
     },
-    [mouseX, mouseY]
+    [setPointer]
   );
 
-  useEffect(() => {
-    reset();
-  }, [reset]);
+  const reset = useCallback(() => setPointer(offscreen, offscreen), [setPointer, offscreen]);
 
-  const border = useMotionTemplate`
-    linear-gradient(hsl(var(--card)) 0 0) padding-box,
-    radial-gradient(${gradientSize}px circle at ${mouseX}px ${mouseY}px, ${borderColor}, hsl(var(--border)) 100%) border-box
-  `;
-  const glow = useMotionTemplate`radial-gradient(${gradientSize}px circle at ${mouseX}px ${mouseY}px, ${gradientColor}, transparent 100%)`;
+  const spot = `${gradientSize}px circle at var(--mx) var(--my)`;
 
   return (
-    <motion.div
+    <div
+      ref={ref}
       className={cn("group relative isolate overflow-hidden border border-transparent", className)}
       onPointerMove={handlePointerMove}
       onPointerLeave={reset}
-      style={{ background: border }}
+      style={
+        {
+          "--mx": offscreen,
+          "--my": offscreen,
+          background: `linear-gradient(hsl(var(--card)) 0 0) padding-box, radial-gradient(${spot}, ${borderColor}, hsl(var(--border)) 100%) border-box`,
+        } as React.CSSProperties
+      }
     >
       <div className="absolute inset-px -z-10 rounded-[inherit] bg-card" />
-      <motion.div
+      <div
         aria-hidden
         className="pointer-events-none absolute inset-px -z-10 rounded-[inherit] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{ background: glow, opacity: gradientOpacity }}
+        style={{ background: `radial-gradient(${spot}, ${gradientColor}, transparent 100%)`, opacity: gradientOpacity }}
       />
       {children}
-    </motion.div>
+    </div>
   );
 }

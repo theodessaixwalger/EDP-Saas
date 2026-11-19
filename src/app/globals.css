@@ -1,3 +1,32 @@
+/*
+ * Polices de secours ajustées (valeurs identiques à next/font/google) : Arial redimensionnée
+ * aux métriques d'Inter, Geist et Geist Mono, pour un premier affichage sans décalage.
+ */
+@font-face {
+  font-family: "LB Inter Fallback";
+  src: local("Arial");
+  ascent-override: 90.44%;
+  descent-override: 22.52%;
+  line-gap-override: 0%;
+  size-adjust: 107.12%;
+}
+@font-face {
+  font-family: "LB Geist Fallback";
+  src: local("Arial");
+  ascent-override: 95.94%;
+  descent-override: 28.16%;
+  line-gap-override: 0%;
+  size-adjust: 104.76%;
+}
+@font-face {
+  font-family: "LB Geist Mono Fallback";
+  src: local("Arial");
+  ascent-override: 74.67%;
+  descent-override: 21.92%;
+  line-gap-override: 0%;
+  size-adjust: 134.59%;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -144,6 +173,7 @@
   *::after {
     animation-duration: 0.01ms !important;
     animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }

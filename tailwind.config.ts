@@ -138,6 +138,11 @@ const config: Config = {
           "0%, 100%": { transform: "translate(-50%, -50%) scale(1)" },
           "50%": { transform: "translate(-50%, -50%) scale(0.9)" },
         },
+        // Magic UI — Animated Grid Pattern : 4 s d'apparition, 0,6 s de pause, 4 s d'extinction
+        "grid-square": {
+          "0%, 100%": { opacity: "0" },
+          "46.512%, 53.488%": { opacity: "var(--grid-max-opacity, 0.22)" },
+        },
         // Magic UI — Orbiting Circles
         orbit: {
           "0%": {
@@ -154,6 +159,7 @@ const config: Config = {
         "fill-x": "fill-x 900ms cubic-bezier(0.23, 1, 0.32, 1) both",
         ripple: "ripple 3.4s ease calc(var(--i, 0) * 0.2s) infinite",
         orbit: "orbit calc(var(--duration) * 1s) linear infinite",
+        "grid-square": "grid-square 8.6s ease-in-out both",
       },
       transitionTimingFunction: {
         // atlas/easings-standard

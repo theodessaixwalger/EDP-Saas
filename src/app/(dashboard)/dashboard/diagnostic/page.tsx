@@ -8,7 +8,7 @@ import { getDashboardContext } from "@/features/organizations/dashboard-context"
 
 import { demoDiagnostic } from "@/features/demo/demo-data";
 
-export const metadata = { title: "Diagnostic marketing — LocalBoost" };
+export const metadata = { title: "Diagnostic marketing" };
 
 /** Axes et critères du Module 7 (docs/PRODUCT.md). Évaluation déterministe, aucun score inventé. */
 const AXES = [

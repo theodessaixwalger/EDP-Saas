@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 /** Note sur 5 en étoiles pleines / vides. */
 export function Stars({ rating, className }: { rating: number; className?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-0.5", className)} aria-label={`${rating} sur 5`}>
+    <span role="img" className={cn("inline-flex items-center gap-0.5", className)} aria-label={`${rating} sur 5`}>
       {Array.from({ length: 5 }, (_, i) => (
         <Star
           key={i}

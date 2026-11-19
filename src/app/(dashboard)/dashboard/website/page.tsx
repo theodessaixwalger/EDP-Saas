@@ -6,7 +6,7 @@ import { PendingAction } from "@/components/shared/pending-action";
 import { FeatureList } from "@/components/shared/feature-list";
 import { getDashboardContext } from "@/features/organizations/dashboard-context";
 
-export const metadata = { title: "Site vitrine — LocalBoost" };
+export const metadata = { title: "Site vitrine" };
 
 const SECTIONS = ["Accueil & accroche", "Horaires & coordonnées", "Carte d'accès", "Prestations / carte", "Avis clients", "Contact"];
 

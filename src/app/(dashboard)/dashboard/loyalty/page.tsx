@@ -23,11 +23,11 @@ import { TableCard } from "@/components/shared/table-card";
 import { FeatureList } from "@/components/shared/feature-list";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { StatusPill } from "@/components/shared/data-cells";
-import { getDashboardContext } from "@/features/organizations/dashboard-context";
+import { isDemoMode } from "@/features/demo/demo-mode";
 import { demoKpis, demoRewards, demoTransactions, frDateTime, frNumber } from "@/features/demo/demo-data";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Fidélité QR — LocalBoost" };
+export const metadata = { title: "Fidélité QR" };
 
 const ACCRUAL_MODES = [
   {
@@ -47,7 +47,8 @@ const ACCRUAL_MODES = [
 ];
 
 export default async function LoyaltyPage() {
-  const { demo } = await getDashboardContext();
+  // Seul le mode démo est utile ici : lecture du cookie, sans aller-retour Supabase (session vérifiée par le middleware).
+  const demo = await isDemoMode();
   const transactions = demo ? demoTransactions : [];
   const rewards = demo ? demoRewards : [];
 

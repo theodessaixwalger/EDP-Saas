@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Conditions Générales d'Utilisation",
+  description: "Conditions générales d'utilisation de la plateforme SaaS LocalBoost destinée aux commerçants et artisans de proximité.",
+  alternates: { canonical: "/cgu" },
+};
+
 export default function CGUPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
